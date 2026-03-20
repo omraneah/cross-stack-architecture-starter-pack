@@ -90,9 +90,12 @@ When asked to create a new boundary document:
 2. **`api-boundaries.md`** — API versioning, contract, and deprecation
 3. **`multi-tenancy-boundaries.md`** — Tenant isolation, request scoping
 4. **`tenant-user-role-boundaries.md`** — Tenant types, user roles, profile constraints
-5. **`module-communication-boundaries.md`** — Event-driven patterns, dependency rules
-6. **`quality-security-boundaries.md`** — Automated enforcement, CI as authority
-7. **`production-data-integrity-boundaries.md`** — Production data rules, migration safety
-8. **`engineering-practices-boundaries.md`** — Cross-stack engineering standards
+5. **`iam-and-access-control-boundaries.md`** — IAM roles, permission scoping, access control invariants
+6. **`module-communication-boundaries.md`** — Event-driven patterns, dependency rules
+7. **`infrastructure-as-code-boundaries.md`** — IaC ownership, drift, and environment boundaries
+8. **`naming-conventions-boundaries.md`** — Cross-stack naming rules and consistency constraints
+9. **`quality-security-boundaries.md`** — Automated enforcement, CI as authority
+10. **`production-data-integrity-boundaries.md`** — Production data rules, migration safety
+11. **`engineering-practices-boundaries.md`** — Cross-stack engineering standards
 
 ---
