@@ -1,90 +1,139 @@
-# Cross-Stack Architecture Boundaries
+# Cross-Stack Architecture Starter Pack
 
-This repository contains **architectural boundary documents** that define **non-negotiable invariants** across all projects. These are not guidelines. They are constraints that must hold. This repository is **mandatory reading** for all engineers and must be **respected by both humans and AI tools** when contributing, reviewing, or generating code.
+This repository contains two complementary layers that together form a complete agent-ready architecture system:
 
----
+1. **Architectural Reference Documents (ARDs)** — principle-level, non-negotiable boundaries that govern all projects. They answer: *what must be true.*
 
-## Mandatory Usage and Expectations
-
-- **All engineers** must read and apply these boundaries. **Intermediate-level engineers and above** are expected to fully master them and enforce them in their work and in review.
-- These documents define **invariants**. Violations are rejected in review. Bypassing a boundary via local workarounds, exclusions, or silencing enforcement is **not acceptable**.
-- Any **friction or constraint** (tooling, configuration, credentials, scope) that makes it hard to comply must be **surfaced explicitly** — not hidden or silenced. The expected response is to resolve the constraint structurally or escalate for arbitration.
-- **Exceptions** are rare and require **explicit CTO validation**. There is no implicit exception by convenience or deadline.
-- These boundaries apply **equally** to:
-  - Production code
-  - Test code
-  - Infrastructure
-  - CI and tooling
+2. **Agent Guides, Decision Trees, Patterns, and Anti-Patterns** — implementation intelligence extracted from real codebases. They answer: *how does an agent execute against that truth.*
 
 ---
 
-## What These Documents Are
+## Mandatory Usage
+
+- **All engineers** must read and apply these boundaries
+- **Intermediate-level engineers and above** are expected to fully master them and enforce them in review
+- **AI tools** must respect both layers when generating, reviewing, or modifying code
+- Violations are **rejected in review** — no exceptions by convenience or deadline
+- The ARDs are the source of truth. The agent guides are derived from them
+
+---
+
+## Reading Order
+
+### For a new project, read in this order:
+
+1. This README
+2. All ARDs (root-level `*.md` files) — understand all boundaries
+3. All `AGENT-GUIDES/` files — operating instructions for implementation
+4. `BOOTSTRAP-SEQUENCE.md` — ordered workflow for starting from zero
+5. Relevant `DECISION-TREES/` files for the specific task
+6. Relevant `PATTERNS/` files for the specific implementation
+7. All `ANTI-PATTERNS/` files before generating any code
+
+### For a specific task, read:
+
+| Task | Files to Read First |
+|------|-------------------|
+| Start a new module | `AGENT-GUIDES/module-communication.md`, `DECISION-TREES/starting-a-new-module.md` |
+| Add an API endpoint | `AGENT-GUIDES/api-versioning.md`, `AGENT-GUIDES/multi-tenancy.md`, `DECISION-TREES/adding-a-new-api-endpoint.md` |
+| Add cross-module communication | `AGENT-GUIDES/module-communication.md`, `DECISION-TREES/adding-cross-module-communication.md`, `PATTERNS/event-driven-cross-module.md` |
+| Create or modify a user | `AGENT-GUIDES/tenant-user-role.md`, `DECISION-TREES/creating-or-modifying-a-user.md` |
+| Write a migration | `AGENT-GUIDES/data-integrity.md`, `DECISION-TREES/writing-a-data-migration.md`, `PATTERNS/migration-script-template.md` |
+| Add infrastructure resources | `AGENT-GUIDES/infrastructure-as-code.md`, `AGENT-GUIDES/iam-and-access-control.md`, `DECISION-TREES/adding-infrastructure-resources.md` |
+| Review generated code | `DECISION-TREES/reviewing-generated-code.md`, all `ANTI-PATTERNS/` files |
+| Implement auth flow | `AGENT-GUIDES/auth.md`, `PATTERNS/auth-boundary-translation.md`, `PATTERNS/request-lifecycle.md` |
+| Implement tenant-scoped data | `AGENT-GUIDES/multi-tenancy.md`, `PATTERNS/tenant-scoped-repository.md` |
+
+---
+
+## Repository Structure
+
+```
+.                               ← Architectural Reference Documents (ARDs)
+├── auth-boundaries.md
+├── api-boundaries.md
+├── multi-tenancy-boundaries.md
+├── tenant-user-role-boundaries.md
+├── iam-and-access-control-boundaries.md
+├── module-communication-boundaries.md
+├── infrastructure-as-code-boundaries.md
+├── naming-conventions-boundaries.md
+├── quality-security-boundaries.md
+├── production-data-integrity-boundaries.md
+├── engineering-practices-boundaries.md
+│
+├── AGENT-GUIDES/               ← How to execute against each boundary
+│   ├── auth.md
+│   ├── multi-tenancy.md
+│   ├── tenant-user-role.md
+│   ├── iam-and-access-control.md
+│   ├── module-communication.md
+│   ├── api-versioning.md
+│   ├── naming-conventions.md
+│   ├── infrastructure-as-code.md
+│   ├── data-integrity.md
+│   ├── quality-and-security.md
+│   └── engineering-practices.md
+│
+├── DECISION-TREES/             ← Structured flows for high-consequence moments
+│   ├── starting-a-new-module.md
+│   ├── adding-a-new-api-endpoint.md
+│   ├── adding-cross-module-communication.md
+│   ├── creating-or-modifying-a-user.md
+│   ├── writing-a-data-migration.md
+│   ├── adding-infrastructure-resources.md
+│   └── reviewing-generated-code.md
+│
+├── PATTERNS/                   ← Canonical implementation skeletons
+│   ├── request-lifecycle.md
+│   ├── tenant-scoped-repository.md
+│   ├── event-driven-cross-module.md
+│   ├── auth-boundary-translation.md
+│   ├── iac-resource-lifecycle.md
+│   └── migration-script-template.md
+│
+├── ANTI-PATTERNS/              ← What not to generate
+│   ├── provider-id-leakage.md
+│   ├── controller-tenant-logic.md
+│   ├── cross-module-direct-injection.md
+│   ├── unversioned-api-endpoints.md
+│   ├── non-idempotent-migrations.md
+│   └── iam-long-lived-credentials.md
+│
+├── BOOTSTRAP-SEQUENCE.md       ← Ordered workflow for starting from zero
+├── GAP-NOTES.md                ← Where ARDs diverge from current implementation
+└── CLARIFICATION-NEEDED.md    ← Ambiguities requiring CTO resolution
+```
+
+---
+
+## What the ARDs Are
 
 **Cross-functional boundaries** that must be respected by:
-- All projects (backend, frontend, mobile apps)
+- All projects (backend, frontend, mobile apps, infrastructure)
 - All contributions
 - All code reviews
 - All AI tools
 
 **Code-adjacent** — referenced in editors and tools, mastered by developers, checked during development.
 
-**Living documents** — updated as architectural direction changes and new learnings emerge.
+**Living documents** — updated as architectural direction changes.
 
 ---
 
-## What These Documents Are NOT
+## What the ARDs Are NOT
 
-- ❌ Step-by-step implementation guides
-- ❌ How-to tutorials
-- ❌ Migration roadmaps
-- ❌ Code examples or snippets
-- ❌ Project-specific documentation
-- ❌ Best practices or recommendations
+- Step-by-step implementation guides → those are in `AGENT-GUIDES/` and `PATTERNS/`
+- How-to tutorials
+- Code examples → those are in `PATTERNS/`
+- Project-specific documentation
+- Best practices or recommendations
 
-These documents define **what must be true**, not **how to implement it**.
-
----
-
-## Document Structure
-
-Each boundary document follows this structure:
-
-1. **Purpose** — Why this boundary exists
-2. **Core Model** — Foundational concepts
-3. **Non-Negotiables** — Hard constraints (violations = rejected in review)
-4. **Allowed vs Forbidden Usage** — Clear zones
-5. **Responsibility Boundaries** — Conceptual flow (no code)
-6. **Quick Reference** — Summary of rules
-
-**All documents are:**
-- Principle-level (not implementation details)
-- Cross-stack (no code, no stack-specific references)
-- Authoritative (source of truth)
-- Succinct (no fluff)
+The ARDs define **what must be true**. The rest of this repository defines **how to make it true**.
 
 ---
 
-## For AI Tools: Creating New Documents
-
-When asked to create a new boundary document:
-
-1. **Read this README** to understand the format
-2. **Review existing documents** to match structure and tone
-3. **Follow the structure** above exactly
-4. **No code examples** — use conceptual descriptions only
-5. **Cross-stack** — works for all projects
-6. **Principle-level** — defines what must be true, not how
-7. **Succinct** — remove all unnecessary content
-
-**Key principles:**
-- Boundaries are non-negotiable
-- Documents are living (update as needed)
-- Focus on constraints, not implementation
-- Cross-functional scope
-
----
-
-## Document List
+## ARD Document List
 
 1. **`auth-boundaries.md`** — Authentication provider isolation, internal identity model
 2. **`api-boundaries.md`** — API versioning, contract, and deprecation
@@ -99,3 +148,31 @@ When asked to create a new boundary document:
 11. **`engineering-practices-boundaries.md`** — Cross-stack engineering standards
 
 ---
+
+## Agent Guide Summary
+
+| File | ARD | Core Rule |
+|------|-----|-----------|
+| `auth.md` | auth-boundaries | Provider IDs never leave the auth boundary; roles from DB only |
+| `multi-tenancy.md` | multi-tenancy | `tenantId` from auth context only; all queries scoped via access policy |
+| `tenant-user-role.md` | tenant-user-role | Role→tenant-type validation; Owner protection; Delete&Recreate |
+| `iam-and-access-control.md` | iam-and-access-control | SSO for humans; OIDC for CI; roles as the unit of access |
+| `module-communication.md` | module-communication | Events for cross-module; no circular deps; no sync RPC via events |
+| `api-versioning.md` | api-boundaries | All controllers versioned; breaking changes = new version |
+| `naming-conventions.md` | naming-conventions | camelCase application code; snake_case DB columns |
+| `infrastructure-as-code.md` | infrastructure-as-code | Crown jewels: prevent_destroy; everything else: full IaC |
+| `data-integrity.md` | production-data-integrity | Idempotent + reversible migrations; deployment-coupled |
+| `quality-and-security.md` | quality-security | CI is the authority; no merge with failing checks or unaddressed vulns |
+| `engineering-practices.md` | engineering-practices | Check boundaries first; root cause fixes; no YAGNI; tests are first-class |
+
+---
+
+## Ownership & Change Policy
+
+**This repository is owned by the CTO**
+
+- ARDs are non-negotiable
+- Agent guides, patterns, and decision trees are derived from ARDs and practical implementation
+- Changes to ARDs require explicit CTO approval
+- Agents may propose improvements to implementation guidance but must not modify ARDs
+- Any exception to an architectural invariant requires CTO validation and explicit documentation
