@@ -42,13 +42,18 @@ Violations are **defects in how work is done**. Review and tooling should reinfo
 
 ---
 
-## 2. Separation of Concerns (Where Logic Lives)
+## 2. Separation of Concerns
 
-**Rule:** Business logic lives in the backend or API; client apps consume APIs and handle presentation only.
+**Rule:** Each unit owns one responsibility. The architectural-level expression of SOLID's Single Responsibility Principle, applied across functions, modules, services, and systems. A unit should have exactly one reason to change.
 
 **Entails:**
-- Complex business rules, validation, and domain logic belong in the backend or API layer.
-- Client apps call APIs and handle presentation and UX. Do not duplicate or re-implement business logic in clients; the backend is the single source of truth for domain rules.
+- Layered architectures (controller/service/repository, hexagonal, clean, MVC, modular monolith) exist to enforce this principle. Encapsulation, loose coupling, and high cohesion are corollaries — units that own one responsibility hide their internals, need few dependencies, and keep what's inside them belonging together.
+- The principle generalises across every level. Functions: one thing per function. Modules: one bounded responsibility per module. Services: one domain per service. The boundaries change scale; the discipline does not.
+- Concrete failure modes to watch:
+  - **Business logic leaking into the client.** Validation that started in the API gets duplicated into the front-end; six months later the rules diverge, the client copy is stale, and the bug looks like a backend issue when the source is a client-side guess. The backend is the single source of truth for domain rules; clients render. Do not duplicate or re-implement business logic in clients.
+  - **Controllers doing service work.** Route handlers that reach directly into the database, or orchestrate cross-domain logic, become the place every change lands. Push the work down a layer; the controller stays thin.
+  - **God modules.** A `utils` or `helpers` file that grows past a single theme is a separation-of-concerns failure waiting to be split.
+- Review test: if a single change request would touch more than one responsibility inside a unit, the unit was carrying too much. Split first, then change.
 
 ---
 
