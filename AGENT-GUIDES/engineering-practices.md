@@ -26,7 +26,7 @@
 These seven practices are not stylistic preferences — they are **structural contracts** that keep the codebase navigable, testable, and safe to change at any scale.
 
 1. **Architecture first:** Check boundaries before implementing.
-2. **Separation of concerns:** Backend owns business logic; clients own presentation.
+2. **Separation of concerns:** Each unit owns one responsibility (SOLID's SRP at architecture level). Layered architectures — controller/service/repository, hexagonal, clean, MVC, modular monolith — exist to enforce it. Backend-owns-business-logic / clients-own-presentation is one canonical example, not the principle itself.
 3. **Root cause:** Fix the cause, not the symptom.
 4. **Planning and reviewability:** Small, focused, reviewable units of change.
 5. **Code quality:** Clear names, small units, no duplication, KISS/YAGNI.
