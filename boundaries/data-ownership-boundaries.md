@@ -38,6 +38,9 @@
 - An event handler in Module B whose first action is to write back to Module A's data.
 - A shared "utility" service that fronts writes to multiple modules' entities.
 - The module file lists no ownership; ownership is folklore.
+- A module registering another module's entity in its DI container (e.g., `TypeOrmModule.forFeature([OtherModuleEntity])`, equivalent ORM registrations in other stacks). Quieter than a cross-module write but the same failure mode — it grants write capability without going through the owner.
+
+**Severity floor if violated:** P1 by default; P0 if the ownership leak crosses a security or audit boundary (e.g., one module writes to another module's audit table).
 
 ## Minimum viable shape
 

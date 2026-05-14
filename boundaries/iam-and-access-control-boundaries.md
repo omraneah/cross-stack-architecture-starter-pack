@@ -35,8 +35,11 @@
 - A long-lived cloud credential (access key + secret) in CI configuration.
 - Personal IAM users with access keys for engineers.
 - SSH keys distributed to engineers as the primary access mechanism.
+- An SSH private key stored as a CI secret used to deploy via SSH to production hosts — the most common SSH-key-sprawl path in pre-Series-A startups, often hiding behind a workflow action like `appleboy/ssh-action`.
 - A workload reading credentials from an environment variable injected at build time.
 - A pipeline that exports cloud credentials to logs even briefly.
+
+**Severity floor if violated:** P0 by default — long-lived credentials in CI or on workloads have indefinite blast radius. Step down to P1 only when a documented migration plan with a tracked date exists.
 
 ## Minimum viable shape
 
