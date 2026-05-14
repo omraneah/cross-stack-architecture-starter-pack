@@ -2,6 +2,8 @@
 
 **Tenant context is resolved once at the edge from authenticated identity, then propagated through every layer. No layer trusts caller-supplied tenant identifiers.**
 
+**Applies when:** multi-tenant system (a single deployed instance serving more than one customer organisation). Skip if single-tenant.
+
 ## Why it matters
 
 - Cross-tenant data leakage is the worst failure mode in any B2B or multi-tenant system. A single missing filter exposes all customers' data.
@@ -45,3 +47,5 @@ Auth boundary resolves tenant_id from the authenticated user
   → Repository applies the filter to every query
   → No layer accepts tenant_id from caller input
 ```
+
+**Severity floor if violated:** P0 — a missing tenant filter is a cross-tenant data leak, the worst failure mode in any B2B system. No step-down: once the system is multi-tenant in production, this is non-negotiable.

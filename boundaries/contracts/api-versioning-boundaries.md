@@ -2,6 +2,8 @@
 
 **Every public API endpoint has a stable, versioned contract. Breaking changes require a new version.**
 
+**Applies when:** public or external-consumer API (mobile clients, third-party integrators, SDK consumers, partner backends). Skip for internal-only RPC between services deployed together.
+
 ## Why it matters
 
 - Without versioning, every contract change forces simultaneous deploy of every client. App store delays make this fatal for mobile.
@@ -13,6 +15,7 @@
 **Where the version lives:**
 
 - URI path (`/api/v1/...`). Visible in logs, monitoring, and client code. Easiest to deprecate. Default for public-facing APIs and APIs consumed by independent clients.
+- `/v1/` in the URL works until version 3, when half the customers are on v1, a third on v2, and the routing layer has accreted three years of conditional logic that nobody dares delete. Pick the versioning strategy — and the deprecation discipline — before the first external consumer, not after.
 - Header (`Accept-Version` or media type). Wins when the API is consumed by a tightly-coupled client SDK that handles versioning transparently, when content-negotiation is central to the design (HATEOAS, hypermedia-driven), or when the surface must keep clean URIs for SEO or aesthetics. Costlier to monitor and grep, so the trade-off has to justify itself.
 - Query parameter. Discouraged — easy to forget, easy to cache wrong.
 
@@ -43,3 +46,5 @@ Controller declares version v1 explicitly
   → Tests, clients, docs all reference the versioned base URL
   → Deprecation = announce → monitor traffic → remove only at zero usage
 ```
+
+**Severity floor if violated:** P1 — unversioned breaking changes compound into routing-layer accretion that nobody dares delete. P0 if the API is consumed by mobile or third-party clients (app-store-delay = deploy-and-pray surface). May step down by one tier for internal-only APIs with a single tightly-coupled client.

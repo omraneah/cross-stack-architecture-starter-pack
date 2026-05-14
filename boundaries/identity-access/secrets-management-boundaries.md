@@ -2,6 +2,8 @@
 
 **Secrets live in a managed secret service. Values cross the cloud boundary only into the service; they never cross back out via CI logs, repository files, or build artifacts. Rotation is automatic where supported, scheduled where not.**
 
+**Applies when:** any non-trivial credential or token — API keys, database passwords, signing keys, OAuth client secrets, third-party tokens.
+
 ## Why it matters
 
 - A secret leaked into a repository, a log, or a CI artifact has the same blast radius as a credential breach. The cost of "we'll remove it later" is paid every minute the secret exists outside the secret service.

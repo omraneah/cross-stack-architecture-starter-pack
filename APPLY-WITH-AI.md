@@ -1,6 +1,6 @@
-# Applying This Pack With an LLM
+# Applying This Pack With an AI Agent
 
-This pack is designed to be read by an LLM as input to a codebase audit or a bootstrap plan. The LLM produces a structured output that the operator reviews and acts on. The LLM does not auto-prescribe.
+This pack is designed to be read by an AI agent as input to a codebase audit or a bootstrap plan. The AI agent produces a structured output that the operator reviews and acts on. The AI agent does not auto-prescribe.
 
 ## Two modes
 
@@ -22,25 +22,28 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 
 **Per-boundary severity floors.** Each boundary file ends with a *Severity floor if violated* line that names the default severity for a violation of that boundary. The audit can override based on context — a P1 in a regulated B2B context may become P0; a P0 in an internal-tool context may step down to P1. The floor is the starting point, not the verdict.
 
+**Per-boundary applicability predicates.** Each boundary file carries an `Applies when:` line near the top — a one-line predicate naming the context in which the boundary applies. If the codebase under audit doesn't satisfy the predicate (e.g., the codebase is single-tenant and the boundary is `multi-tenancy`), the AI agent marks the boundary **Not applicable** with the predicate as the rationale, and skips it. Do not score partial satisfaction on a boundary whose predicate doesn't match — the absence of multi-tenancy in a single-tenant codebase is not a finding. The predicate is the gate; the floor and the judgment apply only past the gate.
+
 ---
 
 ## Audit mode protocol
 
-**Inputs to the LLM:**
+**Inputs to the AI agent:**
 
 1. This pack (the 19 boundaries + `DOCTRINE.md`).
 2. The target codebase, or a representative subset (module structure, auth flow, migration set, CI workflows, a few critical service files).
 3. The audit shape: broad audit, single-boundary deep dive, or pre-engagement risk read.
 
-**The LLM does:**
+**The AI agent does:**
 
-1. For each boundary, identify whether the target codebase satisfies it, partially satisfies it, or doesn't address it.
-2. Cite specific files and lines as evidence.
-3. For each gap, assign a severity (P0 / P1 / P2) per the scale above.
-4. For each gap, surface the choice the operator has to make. The boundary describes alternatives; the audit surfaces them. Don't auto-prescribe.
-5. Note over-prescriptions: places where the codebase has hardcoded a specific design choice that locks out reasonable alternatives.
+1. For each boundary, first check the `Applies when:` predicate. If the codebase doesn't satisfy the predicate, mark the boundary **Not applicable**, cite the predicate as the rationale, and skip the rest of the steps for this boundary.
+2. For each applicable boundary, identify whether the target codebase satisfies it, partially satisfies it, or doesn't address it.
+3. Cite specific files and lines as evidence.
+4. For each gap, assign a severity (P0 / P1 / P2) per the scale above; start from the boundary's severity floor, then adjust up or down based on context.
+5. For each gap, surface the choice the operator has to make. The boundary describes alternatives; the audit surfaces them. Don't auto-prescribe.
+6. Note over-prescriptions: places where the codebase has hardcoded a specific design choice that locks out reasonable alternatives.
 
-**The LLM does not:**
+**The AI agent does not:**
 
 1. Rename internal identifiers to match the pack's terminology. The pack describes the principle; the codebase's actual naming may be valid.
 2. Demand a specific naming convention. The boundary asks for one convention consistently, not a specific one.
@@ -106,13 +109,13 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 
 ## Bootstrap mode protocol
 
-**Inputs to the LLM:**
+**Inputs to the AI agent:**
 
 1. This pack.
 2. The target stack (language, framework, cloud, database).
 3. The team shape (size, seniority, existing constraints).
 
-**The LLM does:**
+**The AI agent does:**
 
 1. Walk `BOOTSTRAP-DECISIONS.md` and surface the choices that need to be made.
 2. For each boundary, propose a default that fits the stack, the team, and the doctrine — but mark each as a choice the operator confirms.
@@ -120,24 +123,33 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 
 ---
 
-## How to brief the LLM
+## How to brief the AI agent
 
 A workable brief, kept tight:
 
-> Read this pack. Audit the codebase at `<path>` against the 19 boundaries. For each boundary: current state, severity of gaps (P0/P1/P2 as defined in APPLY-WITH-LLM.md), choice the operator has to surface. Don't prescribe — surface alternatives. Output a per-boundary report, a ranked top-risks list, and a "what's already strong" section. The doctrine is one operator's choices; treat as reference, not requirement.
+> Read this pack. Audit the codebase at `<path>` against the 19 boundaries. For each boundary: current state, severity of gaps (P0/P1/P2 as defined in APPLY-WITH-AI.md), choice the operator has to surface. Don't prescribe — surface alternatives. Output a per-boundary report, a ranked top-risks list, and a "what's already strong" section. The doctrine is one operator's choices; treat as reference, not requirement.
 
-The LLM produces a report; the operator decides what to do with it.
+The AI agent produces a report; the operator decides what to do with it.
 
 ---
 
 ## What this protocol assumes
 
-- The operator reads the LLM's output critically and rejects conclusions that don't fit the context. The pack is a thinking aid, not a final authority.
-- The LLM has enough of the codebase to make calls. A 5-minute scan of a 200k-line monorepo is not enough; the LLM should surface this as a caveat.
+- The operator reads the AI agent's output critically and rejects conclusions that don't fit the context. The pack is a thinking aid, not a final authority.
+- The AI agent has enough of the codebase to make calls. A 5-minute scan of a 200k-line monorepo is not enough; the AI agent should surface this as a caveat.
 - The codebase's existing choices are valid until proven otherwise. The audit's job is to surface, not to override.
 
 ---
 
 ## A note on the future audit skill
 
-The protocol described here is currently executed by an operator briefing an LLM in a conversation. A logical next step is packaging it as a reusable skill: given a codebase path, automatically read the relevant files, apply each boundary, produce a per-boundary grade in a table, surface P0/P1/P2 findings, list what's well done. That skill is not in this repository today; the protocol described here is what it would automate.
+The protocol described here is currently executed by an operator briefing an AI agent in a conversation. A logical next step is packaging it as a reusable skill: given a codebase path, automatically read the relevant files, apply each boundary, produce a per-boundary grade in a table, surface P0/P1/P2 findings, list what's well done. That skill is not in this repository today; the protocol described here is what it would automate.
+
+---
+
+## Worked examples in this pack
+
+- `examples/audit-output-sample.md` — a complete audit run on a fictional B2C marketplace codebase. Shows what the per-boundary report, top-risks list, and "what's already strong" section look like end-to-end.
+- `examples/bootstrap-output-sample.md` — a complete bootstrap run on a fictional B2B SaaS greenfield. Shows the tier breakdown (Day 0 / Before first tenant / Triggered later), per-boundary alternative picked, severity floor accepted, and the "what the operator should challenge" closing section.
+- `examples/auth-boundary-applied.md` — a single-boundary deep dive showing the auth boundary in code (wrong shape, right shape, what it costs, what it buys).
+- `examples/CLAUDE.md.example` — a portable agent-rails file that drops into any project root as `CLAUDE.md` and makes the pack self-bootstrapping for AI coding agents (Claude Code, Cursor, Aider, etc.). Encodes the P0 boundaries as hard-stop rules, the before-edit checklist, the diff-level violation-flagging pattern, and the `/audit` trigger.

@@ -2,6 +2,8 @@
 
 **Every persisted entity has exactly one owning module. The owner controls writes, invariants, schema, and audit. Other modules read via events or the owner's read API.**
 
+**Applies when:** shared database with multiple write paths (more than one module or service writing into the same persistence layer).
+
 ## Why it matters
 
 - Cross-module direct writes bypass the owner's invariants and audit; the bug surfaces days later, far from the offending write.

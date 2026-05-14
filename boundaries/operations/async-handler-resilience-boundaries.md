@@ -2,6 +2,8 @@
 
 **Cross-module event handlers are bounded in error handling, idempotent on replay, finite in retry, and fully observable. A failing handler never breaks the publisher.**
 
+**Applies when:** cross-module async or queue/event-driven handlers (any handler invoked by a message broker, pub/sub, or async event bus).
+
 ## Why it matters
 
 - The pub/sub model's decoupling collapses the moment a handler's failure cascades back to the publisher.
@@ -50,3 +52,5 @@ On error → log + emit to tracker + route to retry queue with attempt counter
 Retry budget exceeded → route to dead-letter queue → trigger operator alert
 Every invocation → metric (invoked, completed, failed) + duration histogram
 ```
+
+**Severity floor if violated:** P1 — silent handler failures and infinite retries decouple cause from effect. P0 if the handler mutates money or settles billable state (idempotency gap = double-charge surface). May step down by one tier for fire-and-forget notifications where re-processing is harmless.
