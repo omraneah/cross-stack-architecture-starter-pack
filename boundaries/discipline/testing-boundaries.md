@@ -41,13 +41,13 @@
 
 ## Minimum viable shape
 
-```
-Day 1 → testing framework installed; first unit test ships before the first feature
-Every new function → at least one happy-path test + one forbidden-path test
-Critical user journey identified → end-to-end test exists before launch
-Agentically engineered code → TDD: test prompt → test → implementation
-High-risk path (auth, payment, deletion, role escalation) → integration test before the path is feature-frozen
-CI → coverage threshold gate; flaky tests tracked; no silent skips
-```
+Six independent rules across the testing surface:
+
+- **Day 1:** testing framework installed; first unit test ships before the first feature.
+- **Every new function:** at least one happy-path test plus one forbidden-path test.
+- **Critical user journey:** end-to-end test exists before launch (signup, login, the core revenue flow).
+- **Agentically engineered code:** TDD — test prompt → test → implementation; the test is the spec.
+- **High-risk path** (auth, payment, deletion, role escalation): integration test exists before the path is feature-frozen.
+- **CI:** coverage threshold gate; flaky tests tracked with a plan; no silent skips.
 
 **Severity floor if violated:** P0 if no tests on a critical revenue path. P1 if testing framework or coverage gates are absent. P2 if individual modules lack coverage in non-critical areas.

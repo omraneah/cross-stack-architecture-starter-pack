@@ -42,12 +42,12 @@
 
 ## Minimum viable shape
 
-```
-Migration → idempotent up() + reversible down()
-Large data ops → batched with resumable checkpoints
-Migration ↔ deploy → single operational unit
-Pre-merge → tested against production-shaped data
-Historical corrections → narrow scope, explicit approval, documented
-```
+Five independent rules over the data-change surface:
+
+- **Migration shape:** idempotent `up()` paired with a working `down()`, or explicit documented irreversibility.
+- **Large data operations:** batched with resumable checkpoints; no unbounded `UPDATE` / `DELETE`.
+- **Migration ↔ deploy:** one operational unit; never run independently from the application change.
+- **Pre-merge:** tested against production-shaped data, not clean dev fixtures.
+- **Historical corrections:** narrow scope, explicit approval, documented; bulk-correcting is a compliance event.
 
 **Severity floor if violated:** P0 — non-idempotent or irreversible migrations on production data risk data loss or corruption with no rollback path. No step-down once persistent customer data is in the system.

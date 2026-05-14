@@ -46,11 +46,11 @@
 
 ## Minimum viable shape
 
-```
-Module A → emits event with complete payload → event bus
-Event bus → broadcasts asynchronously
-Module B → has registered handler → reacts independently
-Module dependency graph → must be a DAG
-Within a module → direct DI is fine
-Across modules → events only; infrastructure exempt
-```
+Three roles in the pattern plus three rules over the graph:
+
+- **Publisher (Module A):** emits an event with a complete, self-contained payload to the event bus.
+- **Event bus:** broadcasts asynchronously to whichever subscribers are registered.
+- **Subscriber (Module B):** registers handlers at the module file; reacts independently of the publisher.
+- **Dependency graph:** must be a DAG — circular imports are forbidden, no `forwardRef` workarounds.
+- **Within a module:** direct DI is fine.
+- **Across modules:** events only; infrastructure services (event bus, repositories, SDK wrappers) are exempt.
