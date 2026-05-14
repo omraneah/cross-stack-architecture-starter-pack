@@ -2,6 +2,8 @@
 
 **Boring beats clever. Fix root causes. Keep changes small and reviewable. Don't build for hypothetical future needs. Tests are first-class.**
 
+**Applies when:** always — any codebase under active development with more than one contributor.
+
 ## Why it matters
 
 - Clever code is unreadable code six months later when the writer is gone or the context is forgotten.
@@ -60,3 +62,5 @@ On an abstraction → only when there is more than one concrete implementation
 On business rules → one canonical place; clients don't duplicate
 On tests → cover the behaviour that matters; fix flaky tests
 ```
+
+**Severity floor if violated:** P2 by default — discipline drift in code shape and PR sizing. Steps up to P1 if bus-tomorrow tests don't exist (single-engineer ownership of revenue-bearing modules with no test scaffolding). P0 only when compounded with a missing testing or quality-security floor on the same path.

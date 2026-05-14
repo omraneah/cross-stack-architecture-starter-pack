@@ -2,6 +2,8 @@
 
 **Modules communicate across boundaries through async events. Within a module, direct wiring is fine. Circular dependencies between modules are forbidden.**
 
+**Applies when:** modular monolith or any cross-module structure (more than one bounded context inside one deployable unit, or multiple services sharing a domain).
+
 ## Why it matters
 
 - Cross-module direct service calls create coupling that blocks independent evolution; a change in one module forces a review of every consumer.

@@ -2,6 +2,8 @@
 
 **Logging and error handling are operational infrastructure, centralized from day one. One module owns the error format; one logger owns the output. Logs ship to a queryable system, not stdout.**
 
+**Applies when:** always — every system needs error shape and a queryable log destination from the first endpoint.
+
 ## Why it matters
 
 - Scattered `console.log` and ad-hoc `try/catch` make incidents un-triageable. The only fix is to add a centralized layer everywhere retroactively — the most expensive refactor at the worst time.

@@ -2,6 +2,8 @@
 
 **Quality and security are enforced by automation. CI is the authority. Human review validates intent; it does not substitute for automated gates.**
 
+**Applies when:** always — any codebase with a CI pipeline (and if there's no CI pipeline yet, that's the first finding).
+
 ## Why it matters
 
 - Manual review degrades under deadline pressure; the same reviewer who blocked a security issue last week may approve a similar one this week.
@@ -28,6 +30,7 @@
 **Override policy:**
 
 - No manual override of CI. A failing check is a failing PR. Exceptions require an explicit, documented design decision, not a deadline.
+- A 70% coverage gate degrades to a 70% coverage gate with `--ignore-pattern` exclusions for "flaky" files within 18 months. The gate without an audit of what's actually excluded is theatre.
 
 ## Signals of violation in an audited codebase
 
@@ -46,3 +49,5 @@ Suppressions → inline justification + tracked remediation date
 Tests, lint, format, type-check → run on every PR
 CI decision → final; no manual override path
 ```
+
+**Severity floor if violated:** P1 — CI gate drift is invisible until a high-severity advisory ships to production. P0 if `continue-on-error` or `soft_fail` is set on a security check without a tracked deadline. May step down by one tier in pre-revenue internal tools.

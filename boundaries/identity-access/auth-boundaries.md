@@ -2,6 +2,8 @@
 
 **The identity provider is replaceable. Business logic sees only internal identifiers and database-derived roles.**
 
+**Applies when:** always — any system with authenticated users.
+
 ## Why it matters
 
 - Provider lock-in at the data layer turns provider migration into a multi-week, multi-module rewrite.
@@ -46,3 +48,5 @@ Request enters the system (HTTP, queue worker, scheduled job, CLI — same shape
 ```
 
 A worked example of this shape applied to a TypeScript backend lives in `examples/auth-boundary-applied.md`.
+
+**Severity floor if violated:** P0 — auth bugs are breach surface, not bugs. May step down by one tier in a pre-revenue prototype with no real users.
