@@ -1,193 +1,49 @@
-# Production Data Integrity & Migration Rules
+# Production Data Integrity Boundaries
 
-**Owner:** CTO
-**Scope:** Cross-Stack Architecture
-**Status:** Authoritative · Non-Negotiable
+**Every change touching production data is idempotent, reversible, and coupled to a deployment. Production data is assumed to be in motion; dev-only validation is insufficient.**
 
----
+## Why it matters
 
-## Purpose
+- A migration that fails halfway leaves production in an inconsistent state that no engineer can recover under pressure.
+- A migration run days before the application change creates a gap window where the application doesn't yet know about the new schema.
+- A non-reversible migration eliminates the rollback option exactly when it's needed most.
 
-This document defines non-negotiable rules for any change that touches production data.
+## The judgment
 
-**Scope:** Applies to migrations, scripts, backfills, corrections, and bugfixes that may impact production data.
+**Migration shape:**
 
-Its purpose is to guarantee:
+- Both `up()` and `down()` functions complete. `down()` fully reverses `up()`, or the irreversibility is explicit, approved, and documented.
+- Every data-touching script is idempotent — running it twice produces the same result as running it once.
 
-- **Production data integrity** — no assumptions about data stability
-- **Safe deployment practices** — data changes are part of deployment, not separate
-- **Operational continuity** — production systems run continuously; changes must respect this
-- **Accountability** — engineering owns data correctness
-- **Reversibility** — migrations must be reversible and phased to allow rollback
-- **Manual validation** — automated checks are insufficient; manual data integrity checks are required when needed
+**Deployment coupling:**
 
----
+- Migration runs as part of the deployment pipeline, immediately before or after the application change, never independently.
+- Long-running migrations on large tables run in batches with transaction boundaries per batch; a failed batch is resumable.
 
-## Core Model
+**Production assumptions:**
 
-### Production Reality
+- Data is in motion: rows are inserted, updated, deleted continuously. Migrations cannot assume table stability.
+- Dev data is clean; production data has nulls in unexpected places, unicode edge cases, duplicates, and temporal inconsistencies. Validate against production-shaped data before merging.
 
-**Production is a continuous system:**
-- Data changes continuously
-- Any assumption of "data stability" is invalid
-- If a process relies on "nothing changed", it is wrong by design
+**Historical corrections:**
 
-### Dev ≠ Production
+- Scoped tightly: prefer correcting the current operational window first. Older corrections require explicit approval and a narrow scope.
+- Bulk-correcting historical data is a compliance event, not a routine task.
 
-**Production data differs from development:**
-- Larger volume
-- Messier (historical inconsistencies)
-- Reflects real operational behaviour
-- Has production-specific edge cases
+## Signals of violation in an audited codebase
 
-**Validation on dev only is insufficient.**
-Any data-related change must assume production-specific edge cases.
+- A migration with an empty or placeholder `down()` function.
+- A backfill script with no existence check before its inserts or updates.
+- A migration scheduled to run days before the application deployment that depends on it.
+- An `UPDATE` or `DELETE` that touches an entire table without batching.
+- A pull request claiming a migration is safe because "it ran fine in dev."
 
-### No Staging Environment
+## Minimum viable shape
 
-If there is no staging or pre-production environment:
-- Merge to the main branch implies deployment readiness
-- Runtime validation during continuous delivery is not acceptable
-- Any data inconsistency that could break production must be validated before merging
-
----
-
-## Non-Negotiable Rules
-
-Violations of the following rules are **architectural defects** and must be rejected in code review.
-
-**Any change violating these rules must be blocked, regardless of delivery pressure.**
-
-### 1. Data Scripts Must Be Idempotent & Reversible
-
-**All data correction / migration scripts must be:**
-- ✅ Idempotent (safe to re-run)
-- ✅ Safe to execute multiple times
-- ✅ Handle partial execution gracefully
-- ✅ Reversible (can rollback if issues occur)
-- ✅ Phased (allows data attribution even if rollback is needed)
-
-**If a script is not idempotent or reversible → do not merge.**
-
-### 2. Deployment & Data Scripts Are One Unit
-
-**Data scripts must be executed immediately after deployment:**
-- ✅ Scripts run as part of the deployment process
-- ❌ Never executed "days before" deployment
-- ❌ Never based on timing assumptions
-- ❌ Never deferred to "later"
-
-**Deployment and data correction are a single operational unit.**
-
-### 3. Production Data Assumptions Are Invalid
-
-**Do not assume:**
-- ❌ Data is stable
-- ❌ Nothing changed since last check
-- ❌ Historical data is consistent
-- ❌ Development patterns match production
-
-**Always assume:**
-- ✅ Data is changing continuously
-- ✅ Production has edge cases that development does not
-- ✅ Historical inconsistencies exist
-- ✅ Real operational behaviour differs from development
-
-### 4. Manual Data Corrections: Scope Discipline
-
-**When manual intervention is required:**
-- Prioritize the most recent operational data first
-- Older historical corrections require explicit CTO approval before touching
-- **Do not assume full historical correction is required.** Optimize for operational continuity first.
-
-### 5. Manual Validation Required
-
-**Automated checks are insufficient:**
-- ✅ Manual data integrity checks must be performed when needed
-- ✅ Do not rely solely on automated validation
-- ✅ Verify data correctness manually before and after changes
-
-**Manual validation is mandatory for production data changes.**
-
-### 6. Production Risk Blocks Merge
-
-**If production risk is detected or suspected:**
-- ✅ Author must block merge
-- ✅ Open a dedicated escalation thread in the team's primary channel
-- ✅ Explicitly state the risk and mitigation plan
-- ✅ Tag the CTO
-- ✅ Production is paused until validation or explicit approval
-
-**Merge requires production readiness. Runtime validation during deployment is not acceptable.**
-
----
-
-## Allowed vs Forbidden Usage
-
-### Allowed Patterns
-
-- Schema migration framework (standard approach)
-- Idempotent and reversible migration scripts
-- Scripts executed immediately after deployment
-- Production data validation before merge (manual checks when needed)
-- Phased migrations (allow rollback and data attribution)
-- Scope limited to recent operational data (unless CTO-approved for historical corrections)
-
-### Forbidden Patterns
-
-- Non-idempotent scripts
-- Non-reversible migrations
-- Scripts executed days before deployment
-- Timing-based assumptions
-- Full historical corrections without explicit CTO approval
-- Development-only validation for production data changes
-- Assumptions about data stability
-- Relying solely on automated checks (manual validation required)
-- Runtime validation during deployment (validation must occur before merge)
-- Merging when production risk is detected or suspected
-
----
-
-## Pre-Merge Responsibility Checklist
-
-**Before merging any change involving data:**
-
-- [ ] Considered production data differences (not only development)
-- [ ] Validated data integrity implications in production
-- [ ] Confirmed script is idempotent and reversible
-- [ ] Planned phased approach (allows rollback and data attribution)
-- [ ] Planned post-deployment execution
-- [ ] Confirmed scope with CTO if historical data is involved
-- [ ] Planned manual data integrity checks (automated checks insufficient)
-- [ ] No production risk detected or suspected (if risk exists: block merge, escalate, tag CTO)
-
-**If any box is unchecked → do not merge.**
-
-**Any change violating these rules must be blocked, regardless of delivery pressure.**
-
----
-
-## Responsibility Boundaries
-
-### Engineering Ownership
-
-**Engineering owns:**
-- Data correctness
-- Script idempotency
-- Production data validation
-- Deployment + data script execution
-
-Operations should never absorb avoidable friction from engineering decisions.
-
-### Production Assumptions
-
-**Production assumptions must be:**
-- Explicitly challenged, not trusted
-- Validated against production data patterns
-- Tested for edge cases
-
-**Bottom line:** Production systems are unforgiving. Design for reality, not convenience.
-
----
-
-**This document is the authoritative source of truth for production data integrity and migration rules across all projects.**
+```
+Migration → idempotent up() + reversible down()
+Large data ops → batched with resumable checkpoints
+Migration ↔ deploy → single operational unit
+Pre-merge → tested against production-shaped data
+Historical corrections → narrow scope, explicit approval, documented
+```

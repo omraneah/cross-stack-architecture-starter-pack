@@ -1,81 +1,49 @@
 # Infrastructure as Code Boundaries
 
-**Owner:** CTO
-**Scope:** Cross-Stack Architecture
-**Status:** Authoritative · Non-Negotiable
+**All infrastructure is defined in code. The few resources whose accidental destruction is catastrophic are imported under lifecycle protection; everything else is fully IaC-owned.**
 
----
+## Why it matters
 
-## Purpose
+- Manual cloud resources drift, miss security review, and disappear with the engineer who created them.
+- Crown-jewel resources (primary database, identity service) destroyed by a misconfigured plan cause hours-to-days of recovery.
+- Per-tenant resources managed in shared state are vulnerable to one bad apply destroying many tenants at once.
 
-This document defines which cloud resources are created and managed **manually then imported** into infrastructure-as-code (IaC) tooling versus **fully owned by IaC** from creation to destruction.
+## The judgment
 
-This is an architectural policy to protect data-critical and auth-critical resources from accidental lifecycle changes while keeping everything else under automated, reviewable control.
+**Crown-jewel resources (loss is catastrophic):**
 
-**Ownership:** CTO. Non-negotiable.
+- Manual create, IaC import, `prevent_destroy` enforced. IaC manages only safe (non-replacing) attributes.
+- The crown-jewel set is intentionally small: the primary database, the auth/identity service. Anything else is full IaC by default.
 
----
+**Standard infrastructure:**
 
-## Core Model
+- Full IaC ownership: create, update, destroy via the tool. Guardrails (deletion protection for stateful resources, validated plans, security scans) enforced by CI.
+- No manual side-channels — if the team can change it via the cloud console, the team will, and drift starts.
 
-- **Manual + import:** Resource is created outside IaC tooling (console, CLI, or one-off script). It is then **imported** into IaC state so the tooling can manage a limited set of **safe** attributes (e.g. tags, non-replacing parameter changes). IaC must **not** own create or destroy for these resources. Use lifecycle protection (e.g. `prevent_destroy`) so that even a destruction plan cannot remove it.
-- **Full IaC:** Resource is created, updated, and (when policy allows) destroyed by IaC tooling. Normal lifecycle. Guardrails (deletion protection, backups, isolated state) are used instead of excluding the resource from IaC.
+**Tenant-scoped resources (per-customer databases, queues, namespaces):**
 
----
+- IaC-managed with isolated state per tenant or pool. A failed apply must not be able to plan destructions across multiple tenants simultaneously.
+- Explicit destruction workflow with deletion-protection bypass — never destroy as a side effect of a normal apply.
 
-## Crown-Jewel Resources (Manual + Import Only)
+**Secrets:**
 
-These resources are **data-critical or auth-critical**. Loss implies catastrophic data recovery failure or complete authentication failure. They are **created manually** and **imported** into IaC tooling. IaC tooling does **not** create or destroy them.
+- Stored in the cloud's secret service. IaC declares the resource shape; values are set out-of-band and `ignore_changes` covers them.
+- No secrets in IaC variables, state files, or CI environment.
 
-| Resource Category | Policy |
-|-------------------|--------|
-| **Primary managed database (shared)** | Manual create. Import in IaC. Lifecycle protection (`prevent_destroy`). IaC may manage only safe attributes (tags, parameter changes that do not force replacement). No IaC create or destroy. |
-| **Authentication / identity service (user pools)** | Same. Manual create. Import in IaC. Lifecycle protection. IaC manages tags and non-replacing settings only. No IaC create or destroy. |
+## Signals of violation in an audited codebase
 
-**Non-negotiables:**
+- An IaC resource block for the primary database without `prevent_destroy`.
+- A cloud resource that exists in production but has no IaC representation.
+- A single state file managing all tenants' databases.
+- A hardcoded secret value in a variables file or as a CI environment variable.
+- A CI workflow that runs `apply` without `validate` and a security scan first.
 
-- No IaC resource block that **creates** a crown-jewel database or authentication service in production. Existing instances were created manually and are only imported.
-- No IaC action may **destroy** or **replace** these resources. Lifecycle protection (`prevent_destroy` or equivalent) is required on every such imported resource.
-- Drift on crown jewels is accepted for attributes that IaC does not manage. Only safe, non-replacing attributes are managed by IaC.
+## Minimum viable shape
 
----
-
-## Tenant or Ephemeral Data Resources (Full IaC)
-
-When the architecture moves to **one database per tenant** (or similar ephemeral data resources), those resources **must not** be created manually at scale. They are **IaC-owned**, with guardrails:
-
-- **Deletion protection** must be enabled; disable only as part of a controlled teardown.
-- **Backups** must exist and be verified before any destructive change.
-- **State isolation** (e.g. separate IaC workspace or state per tenant or pool) so one failed apply cannot destroy all tenant resources.
-- **No destroy in production** without an explicit override (variable, pipeline step, or separate destruction workflow).
-
-Legacy shared resources (primary database, authentication service) remain under the crown-jewel policy above. New tenant-scoped resources follow this full-IaC path.
-
----
-
-## Everything Else
-
-All other infrastructure (compute, load balancers, bastion hosts, security groups, access roles, networking, etc.) is **fully managed by IaC**. Created and updated by IaC tooling; destroyed only when policy and guardrails allow. No manual-only critical path for non-crown-jewel resources.
-
----
-
-## Summary
-
-| Category | Create | Manage in IaC | Destroy |
-|----------|--------|----------------|---------|
-| **Crown-jewel database, auth service** | Manual | Import + safe attributes only; lifecycle protection | Never via IaC |
-| **Tenant-scoped resources (future)** | IaC | Full | IaC, with guardrails |
-| **All other infrastructure** | IaC | Full | IaC, per policy |
-
----
-
-## Related Boundaries
-
-- **IAM & Access Control Boundaries:** Roles and access policies for infrastructure resources; defines what is Terraform-managed vs manually managed for identity and access.
-- **Quality & Security Boundaries:** IaC changes must pass validation and formatting gates before apply.
-
----
-
-**This document is updated when the list of crown-jewel resources or the tenant-resource policy changes.**
-
-**This document is the authoritative source of truth for infrastructure lifecycle and IaC boundaries across all projects.**
+```
+Crown jewels → manual create → IaC import → prevent_destroy + ignore_changes
+Everything else → full IaC, deletion protection on stateful resources
+Tenant-scoped → IaC + isolated state per tenant/pool
+Secrets → cloud secret service; declared in IaC, valued out-of-band
+CI → format check → init → validate → security scan → plan → human review → apply
+```
