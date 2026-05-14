@@ -43,6 +43,27 @@ If any answer is "I'm not sure," re-read the relevant ARD before proceeding.
 
 ---
 
+## Phase 1.5: Operational Integrity Baseline
+
+**Reference:** `AGENT-GUIDES/operational-integrity.md`, `AGENT-GUIDES/quality-and-security.md`
+
+**Actions:**
+1. Configure structured logging (JSON or equivalent) with mandatory fields: `correlationId`, `userId`, `tenantId`
+2. Add correlation-ID middleware at the request edge and propagate via headers to all downstream calls
+3. Implement a `SIGTERM` handler with a drain timeout for every long-running process
+4. Register process-level handlers for `unhandledRejection` and `uncaughtException` — capture, log, report
+5. Integrate error tracking (Sentry-equivalent) with searchable tags (`service`, `operation`, `tenantId`)
+6. Implement a health check that probes critical dependencies (DB, cache, downstream services)
+
+**Gate:**
+- [ ] Every long-running process drains in-flight requests on `SIGTERM` before exiting
+- [ ] Every log line is structured with `correlationId`
+- [ ] Correlation IDs propagate across service boundaries
+- [ ] Unhandled rejections and uncaught exceptions reach the error tracker
+- [ ] Health check returns 503 when any critical dependency is down
+
+---
+
 ## Phase 2: Database and Schema Foundation
 
 **Reference:** `AGENT-GUIDES/data-integrity.md`, `AGENT-GUIDES/naming-conventions.md`, `PATTERNS/migration-script-template.md`
@@ -107,19 +128,23 @@ If any answer is "I'm not sure," re-read the relevant ARD before proceeding.
 
 ## Phase 5: Module Architecture
 
-**Reference:** `AGENT-GUIDES/module-communication.md`, `DECISION-TREES/starting-a-new-module.md`, `ANTI-PATTERNS/cross-module-direct-injection.md`
+**Reference:** `AGENT-GUIDES/module-communication.md`, `AGENT-GUIDES/data-ownership.md`, `DECISION-TREES/starting-a-new-module.md`, `PATTERNS/async-event-handler-resilience.md`, `ANTI-PATTERNS/cross-module-direct-injection.md`
 
 **Actions:**
 1. Define the module boundary list (one domain per module)
-2. For each module: create module file first (serves as event registry)
-3. Verify module dependencies are a DAG (no circular dependencies)
-4. Cross-module communication plan: identify which events each module will emit/subscribe to
+2. Declare entity ownership per module — which entities each module owns for writes
+3. For each module: create module file first (serves as event registry + ownership declaration)
+4. Verify module dependencies are a DAG (no circular dependencies)
+5. Cross-module communication plan: identify which events each module will emit/subscribe to
+6. For every cross-module event handler, apply the four resilience layers (bounded error handling, idempotency key, retry + DLQ, observability)
 
 **Gate:**
 - [ ] Module boundaries are defined and named
+- [ ] Entity ownership is declared in each module file
 - [ ] Module dependency graph is a DAG (visualize if needed)
 - [ ] Module files exist before service implementations
 - [ ] Event names defined following `domain.entity.action` convention
+- [ ] Every cross-module event handler is idempotent, retry-capable, DLQ-backed, and observable
 
 ---
 

@@ -25,9 +25,12 @@ Governance, authority, and exception policy: see [`GOVERNANCE.md`](./GOVERNANCE.
 
 | Task | Files to Read First |
 |------|---------------------|
-| Start a new module | `AGENT-GUIDES/module-communication.md`, `DECISION-TREES/starting-a-new-module.md` |
+| Bootstrap a new long-running service | `AGENT-GUIDES/operational-integrity.md`, `AGENT-GUIDES/quality-and-security.md` |
+| Start a new module | `AGENT-GUIDES/module-communication.md`, `AGENT-GUIDES/data-ownership.md`, `DECISION-TREES/starting-a-new-module.md` |
 | Add an API endpoint | `AGENT-GUIDES/api-versioning.md`, `AGENT-GUIDES/multi-tenancy.md`, `DECISION-TREES/adding-a-new-api-endpoint.md` |
 | Add cross-module communication | `AGENT-GUIDES/module-communication.md`, `DECISION-TREES/adding-cross-module-communication.md`, `PATTERNS/event-driven-cross-module.md` |
+| Implement an async event handler | `AGENT-GUIDES/module-communication.md`, `PATTERNS/async-event-handler-resilience.md` |
+| Define ownership for a new entity | `AGENT-GUIDES/data-ownership.md`, `AGENT-GUIDES/module-communication.md` |
 | Create or modify a user | `AGENT-GUIDES/tenant-user-role.md`, `DECISION-TREES/creating-or-modifying-a-user.md` |
 | Write a migration | `AGENT-GUIDES/data-integrity.md`, `DECISION-TREES/writing-a-data-migration.md`, `PATTERNS/migration-script-template.md` |
 | Add infrastructure resources | `AGENT-GUIDES/infrastructure-as-code.md`, `AGENT-GUIDES/iam-and-access-control.md`, `DECISION-TREES/adding-infrastructure-resources.md` |
@@ -91,9 +94,11 @@ Governance, authority, and exception policy: see [`GOVERNANCE.md`](./GOVERNANCE.
 | `tenant-user-role.md` | Role → tenant-type validation; Owner protection; Delete & Recreate |
 | `iam-and-access-control.md` | SSO for humans; OIDC for CI; roles as the unit of access |
 | `module-communication.md` | Events for cross-module; no circular deps; no sync RPC via events |
+| `data-ownership.md` | Each entity has one owning module; cross-module writes forbidden |
 | `api-versioning.md` | All controllers versioned; breaking changes = new version |
 | `naming-conventions.md` | camelCase application code; snake_case DB columns |
 | `infrastructure-as-code.md` | Crown jewels: prevent_destroy; everything else: full IaC |
 | `data-integrity.md` | Idempotent and reversible migrations; deployment-coupled |
 | `quality-and-security.md` | CI is the authority; no merge with failing checks or unaddressed vulns |
+| `operational-integrity.md` | Graceful shutdown; structured + correlated logs; honest health checks; no silent failures |
 | `engineering-practices.md` | Check boundaries first; root cause fixes; no YAGNI; tests are first-class |
