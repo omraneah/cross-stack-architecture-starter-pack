@@ -2,7 +2,7 @@
 
 One boundary applied to one stack to make the abstract concrete. The stack here is TypeScript on a typical web backend, but the shape ports identically to Python, Go, Ruby. The framework-specific syntax (decorators, dependency injection style, ORM choice) is incidental; the structure is the point.
 
-**Principle:** `boundaries/auth-boundaries.md`.
+**Principle:** `boundaries/identity-access/auth-boundaries.md`.
 **Doctrine:** the author's specific choice on each trade-off lives in `DOCTRINE.md` under *Auth & Identity*.
 
 ## The stack illustrated

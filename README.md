@@ -14,7 +14,7 @@ The boundaries hold up to around Series A. Past that, the shape of the company c
 
 - **19 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape, severity floor.
 - **A doctrine** (`DOCTRINE.md`). One operator's choices, anonymized. Reference, not requirement.
-- **An organizational-context document** (`ORG-CONTEXT.md`). What changes when the org isn't normal — adversarial founders, junior-only teams, no platform-engineering hire, AI-assisted development as a hiring substitute.
+- **A list of organizational no-gos** (`ORG-CONTEXT.md`). Six structural patterns that make the pack impossible to apply — independent of role-by-headcount framing.
 - **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one. Includes an output template and a sample audit run.
 - **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What depends on what when starting from zero.
 - **Worked examples** in `examples/`. Concrete (illustrative) stacks showing what "right shape" looks like in code.
@@ -45,38 +45,38 @@ These are areas the author hasn't operated long enough at depth to write boundar
 2. `APPLY-WITH-LLM.md` — the application protocol for audits and bootstraps.
 3. `boundaries/` — the 19 boundary files. Read in any order; each is self-contained.
 4. `DOCTRINE.md` — one operator's choices. Reference.
-5. `ORG-CONTEXT.md` — honest read on what changes when the org isn't normal.
+5. `ORG-CONTEXT.md` — six organizational no-gos that prevent the pack from applying at all.
 6. `BOOTSTRAP-DECISIONS.md` — a decision tree for greenfield projects.
 
 ## The 19 boundaries (by theme)
 
-**Identity, access, authority**
-- `boundaries/auth-boundaries.md`
-- `boundaries/iam-and-access-control-boundaries.md`
-- `boundaries/secrets-management-boundaries.md`
+**`boundaries/identity-access/`** — identity, access, authority
+- `auth-boundaries.md`
+- `iam-and-access-control-boundaries.md`
+- `secrets-management-boundaries.md`
 
-**Tenancy and the user model**
-- `boundaries/multi-tenancy-boundaries.md`
-- `boundaries/tenant-user-role-boundaries.md`
+**`boundaries/tenancy/`** — tenancy and the user model
+- `multi-tenancy-boundaries.md`
+- `tenant-user-role-boundaries.md`
 
-**Module structure and data ownership**
-- `boundaries/module-communication-boundaries.md`
-- `boundaries/data-ownership-boundaries.md`
+**`boundaries/architecture/`** — module structure and data ownership
+- `module-communication-boundaries.md`
+- `data-ownership-boundaries.md`
 
-**External contracts**
-- `boundaries/api-versioning-boundaries.md`
-- `boundaries/naming-conventions-boundaries.md`
+**`boundaries/contracts/`** — external contracts
+- `api-versioning-boundaries.md`
+- `naming-conventions-boundaries.md`
 
-**Production and operations**
-- `boundaries/infrastructure-as-code-boundaries.md`
-- `boundaries/cloud-deployment-posture-boundaries.md`
-- `boundaries/production-data-integrity-boundaries.md`
-- `boundaries/operational-integrity-boundaries.md`
-- `boundaries/observability-boundaries.md`
-- `boundaries/logging-and-error-handling-boundaries.md`
-- `boundaries/async-handler-resilience-boundaries.md`
+**`boundaries/operations/`** — production and operations
+- `infrastructure-as-code-boundaries.md`
+- `cloud-deployment-posture-boundaries.md`
+- `production-data-integrity-boundaries.md`
+- `operational-integrity-boundaries.md`
+- `observability-boundaries.md`
+- `logging-and-error-handling-boundaries.md`
+- `async-handler-resilience-boundaries.md`
 
-**Discipline**
-- `boundaries/quality-security-boundaries.md`
-- `boundaries/engineering-practices-boundaries.md`
-- `boundaries/testing-boundaries.md`
+**`boundaries/discipline/`** — engineering discipline
+- `quality-security-boundaries.md`
+- `engineering-practices-boundaries.md`
+- `testing-boundaries.md`
