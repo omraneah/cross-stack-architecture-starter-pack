@@ -2,6 +2,8 @@
 
 **Every long-running process is drainable, observable, and honest. Nothing fails silently. Health checks reflect the ability to serve, not just the fact that the process is running.**
 
+**Applies when:** production traffic (any service handling real user or system requests in a live environment).
+
 ## Why it matters
 
 - A process killed mid-request on shutdown drops in-flight customer work. Every deploy becomes a partial outage.
@@ -53,3 +55,5 @@ Every log → structured + correlation ID + relevant context
 Every error → log + emit to error tracker with tags
 Health check → probes critical dependencies, returns failure when one is down
 ```
+
+**Severity floor if violated:** P1 — degrades silently until the first real incident, then everything missing is needed at once. P0 if a customer-facing health check lies (200 OK while a critical dependency is down) and is wired into autoscaler or load-balancer routing. May step down by one tier in internal tools.

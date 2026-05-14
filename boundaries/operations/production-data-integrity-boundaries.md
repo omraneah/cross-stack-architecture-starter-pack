@@ -2,6 +2,8 @@
 
 **Every change touching production data is idempotent, reversible, and coupled to a deployment. Production data is assumed to be in motion; dev-only validation is insufficient.**
 
+**Applies when:** persistent storage (any system with a stateful database, queue, or other durable store holding customer or business data).
+
 ## Why it matters
 
 - A migration that fails halfway leaves production in an inconsistent state that no engineer can recover under pressure.
@@ -47,3 +49,5 @@ Migration ↔ deploy → single operational unit
 Pre-merge → tested against production-shaped data
 Historical corrections → narrow scope, explicit approval, documented
 ```
+
+**Severity floor if violated:** P0 — non-idempotent or irreversible migrations on production data risk data loss or corruption with no rollback path. No step-down once persistent customer data is in the system.
