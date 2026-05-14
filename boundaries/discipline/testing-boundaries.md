@@ -8,7 +8,7 @@
 
 - A codebase without tests becomes unchangeable as it grows; the cost of regression becomes the cost of every change.
 - Tests written months after the code are tests against current behavior, not against the spec — they entrench whatever bugs the code has.
-- LLM-assisted development without tests is fast and broken; tests are the spec the LLM optimizes against. Without them, the LLM ships plausible code that drifts from intent.
+- Agent Tech Engineering without tests is fast and broken; tests are the spec the AI agent optimizes against. Without them, the AI agent ships plausible code that drifts from intent.
 - Critical user paths without end-to-end coverage means every deploy is a customer-facing roll of dice.
 
 ## The judgment
@@ -19,11 +19,11 @@
 - End-to-end tests for critical user journeys (signup, login, the core revenue-generating flow). Non-negotiable as soon as the journey is real. The exact framework matters less than the muscle.
 - Integration tests for high-risk paths (auth, payments, third-party integrations). Added incrementally as the journey solidifies; not a day-one mandate but a near-term one.
 
-**How to test with an LLM:**
+**How to test under Agent Tech Engineering:**
 
-- TDD: write the test first. Tell the LLM exactly what behavior the test asserts; then have it write the implementation. The test is the spec.
+- TDD: write the test first. Tell the AI agent exactly what behavior the test asserts; then have it write the implementation. The test is the spec.
 - Test both the happy path and the forbidden path. For risk-bearing operations (auth, payment, deletion, role escalation), test that the risk is mitigated explicitly, not just that the success case works.
-- LLMs are good at testing when the framework is installed from the start, the test pattern is established, and the prompt names the expected behavior. They are not good at retrofitting tests onto code they didn't write.
+- AI agents are good at testing when the framework is installed from the start, the test pattern is established, and the prompt names the expected behavior. They are not good at retrofitting tests onto code they didn't write.
 
 **Coverage discipline:**
 
@@ -36,7 +36,7 @@
 - A critical user journey (signup, login, payment) with no end-to-end coverage.
 - A test suite where flaky tests are routinely skipped without follow-up.
 - Commit history with no failing-test-before-green pattern — tests added in the same commit as the code, asserting against the code as written.
-- LLM-generated code merged without LLM-generated tests.
+- AI-generated code merged without AI-generated tests.
 - No coverage gate in CI, or a coverage gate that can be lowered without review.
 
 ## Minimum viable shape
@@ -45,7 +45,7 @@
 Day 1 → testing framework installed; first unit test ships before the first feature
 Every new function → at least one happy-path test + one forbidden-path test
 Critical user journey identified → end-to-end test exists before launch
-LLM-assisted code → TDD: test prompt → test → implementation
+Agent Tech-engineered code → TDD: test prompt → test → implementation
 High-risk path (auth, payment, deletion, role escalation) → integration test before the path is feature-frozen
 CI → coverage threshold gate; flaky tests tracked; no silent skips
 ```

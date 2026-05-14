@@ -85,7 +85,7 @@ This makes the violation visible at PR-review time, instead of being hidden in t
 
 ## Audit-mode trigger
 
-When the operator types `/audit` — or any equivalent slash-command / skill the operator wires up — run the protocol from the pack's `APPLY-WITH-LLM.md`:
+When the operator types `/audit` — or any equivalent slash-command / skill the operator wires up — run the protocol from the pack's `APPLY-WITH-AI.md`:
 
 1. For each of the 19 boundaries, identify whether the code at HEAD satisfies, partially satisfies, or doesn't address the boundary. If the boundary's `Applies when:` predicate doesn't match this codebase, mark it "Not applicable" and explain why.
 2. For each gap, apply the severity floor from the boundary file (with documented context-based step-up or step-down).

@@ -229,8 +229,8 @@ Why: the muscle is built early or it isn't built. Every team I've seen postpone 
 **Critical user journeys get end-to-end tests before launch. No exceptions.**
 Why: a launch event without E2E coverage is a launch event where I find out about regressions from a customer. That's a bad position to be in.
 
-**I use TDD with LLMs. The test is the spec.**
-Why: writing the test first forces me to articulate the behavior I want. The LLM optimizes against the spec, not against plausible-looking output. This is the single highest-leverage discipline change I've made for LLM-assisted development.
+**I use TDD under Agent Tech Engineering. The test is the spec.**
+Why: writing the test first forces me to articulate the behavior I want. The AI agent optimizes against the spec, not against plausible-looking output. This is the single highest-leverage discipline change I've made for Agent Tech Engineering.
 
 **I test the happy path and the forbidden path. For risk-bearing operations, the forbidden test gets more attention than the happy one.**
 Why: the happy path is what the product manager checks. The forbidden path is what an attacker checks. Both ship.

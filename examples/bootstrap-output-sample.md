@@ -1,6 +1,6 @@
 # Sample Bootstrap Output
 
-An illustrative bootstrap run showing what the bootstrap-mode protocol in `APPLY-WITH-LLM.md` produces end-to-end. The greenfield product ("Tessera") is fictional but representative of what a real B2B SaaS bootstrap surfaces. Real bootstraps look like this one in shape, tone, and per-boundary structure.
+An illustrative bootstrap run showing what the bootstrap-mode protocol in `APPLY-WITH-AI.md` produces end-to-end. The greenfield product ("Tessera") is fictional but representative of what a real B2B SaaS bootstrap surfaces. Real bootstraps look like this one in shape, tone, and per-boundary structure.
 
 ---
 
@@ -9,7 +9,7 @@ An illustrative bootstrap run showing what the bootstrap-mode protocol in `APPLY
 - **Product.** B2B SaaS for compliance evidence collection. Customers are companies preparing for SOC2 / ISO 27001 audits.
 - **Stack.** TypeScript + NestJS backend; PostgreSQL on AWS RDS; ECS Fargate behind an ALB; Auth0 for identity; Next.js admin (no mobile client at launch).
 - **Cloud.** AWS, single region (us-east-1 at launch). EU region expected by month 12 for data-residency requirements from European design partners.
-- **Team.** Founder (writes code) plus three engineers — one senior, two mid. Heavy LLM-assisted development; no dedicated platform-engineering hire.
+- **Team.** Founder (writes code) plus three engineers — one senior, two mid. Heavy Agent Tech Engineering; no dedicated platform-engineering hire.
 - **Stage.** Pre-revenue. Five design-partner tenants targeted by month 6. Real multi-tenancy lands in month 3.
 - **Constraint.** $400k seed runway; production with paying customers by month 9 or the runway doesn't reach Series A.
 
@@ -34,7 +34,7 @@ Nothing is fully deferred past Series A. The team's size and the compliance-buye
 | Boundary | Tier | Applies-when satisfied? | Alternative picked | Severity floor | One-line rationale |
 |---|---|---|---|---|---|
 | naming-conventions | Day 0 | Yes (always) | `camelCase` in TS application code; `snake_case` in PostgreSQL; mapping in TypeORM entities only | P2 (steps up to P1 if dense codebase emerges) | Lock before first migration or DTO; let the linter enforce. |
-| testing | Day 0 | Yes (always) | Vitest for unit; Playwright for E2E; coverage gate at 50% from PR #1, ratchets up monthly | P0 if no test on revenue path | LLM-assisted development without TDD ships plausible code that drifts from intent. |
+| testing | Day 0 | Yes (always) | Vitest for unit; Playwright for E2E; coverage gate at 50% from PR #1, ratchets up monthly | P0 if no test on revenue path | Agent Tech Engineering without TDD ships plausible code that drifts from intent. |
 | logging-and-error-handling | Day 0 | Yes (always) | Pino as the single logger; typed domain-error taxonomy under `src/common/errors/`; NestJS exception filter formats responses | P0 if privileged actions lack audit trail (B2B/regulated) | Audit-trail design lands in Tier 2 with multi-tenancy; logger and error module land now. |
 | engineering-practices | Day 0 | Yes (always) | Small reviewable PRs (target ≤ 400 lines); root-cause-not-symptom rule; no speculative abstractions | P2 by default | The four engineers all touch every module; the discipline pays back from week 1. |
 | quality-security | Day 0 | Yes (always) | GitHub Actions PR workflow: `tsc --noEmit`, ESLint, Vitest, `npm audit --audit-level=high`, Semgrep, Gitleaks; SonarCloud quality gate; Dependabot | P1 (P0 if `continue-on-error` on security check) | Same checks pre-commit (lint + format + audit) and CI (everything). No manual override. |
@@ -75,4 +75,4 @@ The operator's task: read the plan critically, override where context doesn't fi
 
 ---
 
-This is what a bootstrap output looks like. The protocol is reproducible; the operator's task is to read the output critically, override where the LLM missed context, and turn the per-boundary decisions into a sequenced bootstrap backlog.
+This is what a bootstrap output looks like. The protocol is reproducible; the operator's task is to read the output critically, override where the AI agent missed context, and turn the per-boundary decisions into a sequenced bootstrap backlog.

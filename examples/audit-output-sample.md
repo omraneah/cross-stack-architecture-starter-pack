@@ -1,6 +1,6 @@
 # Sample Audit Output
 
-This is an illustrative audit run showing what the `APPLY-WITH-LLM.md` protocol produces end-to-end. The codebase ("Orderly") and its findings are fictional but representative of what a real pre-Series A audit surfaces. Real audits look like this one in shape, tone, and per-boundary structure.
+This is an illustrative audit run showing what the `APPLY-WITH-AI.md` protocol produces end-to-end. The codebase ("Orderly") and its findings are fictional but representative of what a real pre-Series A audit surfaces. Real audits look like this one in shape, tone, and per-boundary structure.
 
 ---
 
@@ -10,7 +10,7 @@ This is an illustrative audit run showing what the `APPLY-WITH-LLM.md` protocol 
 - **Tenancy.** Single-tenant (one organization, all data co-mingled with seller scoping at the application layer). `multi-tenancy` and `tenant-user-role` boundaries are not applicable.
 - **Architecture.** Modular monolith. Node.js + TypeScript backend with a typed query layer over Postgres; Next.js admin frontend (`/admin`); React Native mobile client. Single AWS region (us-east-1).
 - **Deploy.** Two ECS Fargate services behind an ALB. CI in GitHub Actions; deploy via `aws-actions/configure-aws-credentials` with OIDC. Postgres in RDS Multi-AZ.
-- **Team.** Three engineers; the founder writes code; no platform-engineering hire; heavy LLM-assisted development.
+- **Team.** Three engineers; the founder writes code; no platform-engineering hire; heavy Agent Tech Engineering.
 
 ---
 
@@ -35,8 +35,8 @@ This is an illustrative audit run showing what the `APPLY-WITH-LLM.md` protocol 
 | logging-and-error-handling | Partially satisfied | P2 | Centralized logger at `src/common/logger.ts:5` (Pino), used consistently; no `console.log` in production paths; error taxonomy at `src/common/errors/` with `BaseError`, `ValidationError`, `NotFoundError`, etc.; exception filter maps typed errors to API responses; no audit-trail stream for privileged actions (deletions, role changes) | Centralized logger and centralized error module both in place. Missing: audit trail. | Schedule: add an `audit_log` append-only table; emit on privileged operations (admin deletes, refunds, password resets). |
 | async-handler-resilience | Not applicable as written | n/a | No queue or event bus in use; cross-module communication is sync DI | — | When the first event bus or queue lands (likely SQS for refund processing per the team's roadmap), apply the four layers from day one. |
 | quality-security | Satisfied | P2 | GitHub Actions PR workflow runs `npm audit --audit-level=high` (blocking), ESLint, Prettier, `tsc --noEmit`, unit tests, Jest coverage gate at 70%; SonarCloud with `qualitygate.wait=true`; secret scanner (Gitleaks) on pre-commit and CI; Dependabot enabled for npm | Strong PR-time gates; aligned pre-commit and CI. Coverage threshold present. | Opportunistic: sweep `eslint-disable` lines for justification comments. |
-| engineering-practices | Partially satisfied | P2 | Business rules canonicalized server-side (sampled `checkout.service.ts`); pre-commit blocks `console.log`; `new Date()` flagged in favor of injected clock; LLM-generated DTOs in mobile client are hand-rolled (not generated from OpenAPI); a few `eslint-disable` lines without justification | LLM-assisted code shape is mostly good; the hand-rolled DTOs are a sync-drift risk between server and mobile. | Schedule: generate the mobile client SDK from the server's OpenAPI output; replace hand-rolled DTOs. |
-| testing | Partially satisfied | P1 | Jest unit tests across services; 70% line coverage; one E2E test (Playwright) for the signup flow; checkout flow E2E does not exist; integration tests for the payment provider are absent (currently mocked at unit level only); no TDD discipline visible in commit history (tests committed in same commit as code, asserting current behavior) | Framework installed, coverage gate present. Missing: E2E for the revenue-generating flow (checkout), integration tests for the payment provider, TDD pattern. | Schedule: E2E checkout test before next launch event; one integration test against the payment provider sandbox; for LLM-assisted features, adopt TDD prompt pattern (write the test first, then have the LLM implement against it). |
+| engineering-practices | Partially satisfied | P2 | Business rules canonicalized server-side (sampled `checkout.service.ts`); pre-commit blocks `console.log`; `new Date()` flagged in favor of injected clock; AI-generated DTOs in mobile client are hand-rolled (not generated from OpenAPI); a few `eslint-disable` lines without justification | Agent Tech-engineered code shape is mostly good; the hand-rolled DTOs are a sync-drift risk between server and mobile. | Schedule: generate the mobile client SDK from the server's OpenAPI output; replace hand-rolled DTOs. |
+| testing | Partially satisfied | P1 | Jest unit tests across services; 70% line coverage; one E2E test (Playwright) for the signup flow; checkout flow E2E does not exist; integration tests for the payment provider are absent (currently mocked at unit level only); no TDD discipline visible in commit history (tests committed in same commit as code, asserting current behavior) | Framework installed, coverage gate present. Missing: E2E for the revenue-generating flow (checkout), integration tests for the payment provider, TDD pattern. | Schedule: E2E checkout test before next launch event; one integration test against the payment provider sandbox; for AI-assisted features, adopt TDD prompt pattern (write the test first, then have the AI agent implement against it). |
 
 ---
 
@@ -71,4 +71,4 @@ This is an illustrative audit run showing what the `APPLY-WITH-LLM.md` protocol 
 
 ---
 
-This is what an audit output looks like. The protocol is reproducible; the operator's task is to read the output critically, override where the LLM missed context, and turn the recommended next steps into a prioritized backlog.
+This is what an audit output looks like. The protocol is reproducible; the operator's task is to read the output critically, override where the AI agent missed context, and turn the recommended next steps into a prioritized backlog.
