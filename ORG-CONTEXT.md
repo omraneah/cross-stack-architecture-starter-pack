@@ -1,66 +1,33 @@
-# Organizational Context — What Changes When the Org Isn't Normal
+# Organizational No-Gos
 
-The pack assumes an early-stage engineering org with reasonable basics: a founder team that funds infrastructure, a hiring plan that includes operational roles, a budget for tooling, and a culture where engineering decisions are respected. Many early-stage orgs aren't like that. This document is honest about what changes — and what to do — when the org context is harder than the pack assumes.
+The pack describes the engineering shape. This document names the organizational shapes that prevent the engineering shape from holding — regardless of how good the team or the doctrine is.
 
-## Common adversarial patterns
+These are structural failure modes. They survive context: AI-era or pre-AI, B2B or B2C, services or monolith. None depend on a specific role being recruited — the AI era makes role-by-headcount framing fragile. A senior full-stack working with AI covers work that used to be split across a small specialist team. Naming "we didn't hire DevOps" or "we need a platform engineer" as the problem misses the point; below Series A scale, those are usually not problems an additional hire solves.
 
-**Founders block infrastructure investment.**
-Symptom: requests for a load balancer, an observability tool, a CI/CD upgrade get answered with "do it later" or "it's not a priority." Result: P0 boundaries (IAM, IaC, deployment posture, operational integrity) stay un-addressed past the point where they should be P0.
+The patterns below are different. They break engagements at any altitude, any era, any stack.
 
-**Junior-only team, no senior engineering hires.**
-Symptom: the founders want the senior engineer to "bring in juniors" and have them do the work. The senior carries the architectural load alone while training. Result: the architectural-discipline boundaries (module-communication, data-ownership, testing) drift faster than the senior can hold them.
+## The six no-gos
 
-**No DevOps / platform engineering hire.**
-Symptom: every infrastructure decision routes through whoever happens to know the cloud platform that week. Result: cloud-deployment-posture, IAM, secrets-management, and IaC boundaries all degrade together because nobody owns them.
+**1. Building everything with juniors.**
+A team composed entirely of juniors cannot hold the boundaries no matter how clearly they're written. Senior judgment is what catches the violations that don't trigger the linter. Without it, the boundaries become decoration.
 
-**AI-assisted development as a hiring substitute.**
-Symptom: the team uses LLMs aggressively to compensate for missing skills. Result: the testing boundary becomes load-bearing — LLM-generated code without TDD ships plausible-but-wrong logic faster than humans can review it.
+**2. Empty surfaces — single-person retention risk.**
+One person can meaningfully touch the system; everyone else looks at it from the outside. The surface stays alive as long as that person does. When they leave, the surface goes dark — not just slow, dark. Severity scales with how much of the business depends on the dark surface.
 
-## What to prioritize under each constraint
+**3. Over-engineering ahead of the business.**
+Architecture correct for the company in 18 months, on a runway that doesn't reach 18 months. AI amplifies speed in whichever direction the team is already pointed — including the wrong one. The failure mode is not the engineering; it's the cash and the time the engineering consumed.
 
-**When the org blocks infrastructure investment:**
+**4. Skipping product specs and business discussion.**
+Engineering executes against an implicit understanding of what the business needs. The implicit understanding diverges from reality silently. The cost surfaces months later as features nobody asked for and features nobody shipped.
 
-- Document every P0 boundary in writing. Date it. Send it to the founders. The paper trail is your insurance when the breach happens.
-- Pick the cheapest P0 fixes — OIDC for CI is one engineer-day; `prevent_destroy` on the primary database is one hour. Land them under the radar; ask forgiveness, not permission, on items that cost less than half a day.
-- The expensive P0s (HA, observability platform) need political work, not just engineering work. Build a one-page risk register that names the customer impact in dollars per minute of downtime; that's the language that moves founders.
+**5. On-the-fly as a steady-state operating mode.**
+At the beginning, on-the-fly is fine — sometimes necessary. As a way of working that persists, it means no decision cycle, no review gate, no sign-off, no recorded rationale. Drift compounds invisibly. Eventually a decision is needed that depends on a decision that was never recorded.
 
-**When the team is juniors-only:**
+**6. Misaligned incentives.**
+A founder title given in lieu of cash, with the implicit hope that the recipient will operate like a founder. A senior brought in cheap with vague equity. A team that owns risk but has no authority over the decisions that create it. The structural pattern is the same: the person on the hook does not control what they're on the hook for.
 
-- The boundaries become enforcement infrastructure. Pre-commit hooks, ESLint rules, CI gates, type checks — these run when the senior isn't reviewing. Invest in them disproportionately.
-- The doctrine becomes onboarding material. Walk every new junior through one boundary per week; have them apply it to a real PR.
-- Testing becomes the primary safety net. Without test coverage, juniors plus LLMs produce regressions faster than the senior can debug them.
+## How to use this document
 
-**When there's no DevOps hire:**
+Before applying the pack, audit the organization against these six. Each no-go present is a multiplier on every boundary's severity. Two or more present, the engagement is likely unsalvageable — refuse, descope, or walk.
 
-- IaC + IAM + deployment posture become a single weekly cadence — pick one boundary per week, land one improvement, then move on. Slow but compounding.
-- Managed services beat self-hosted at this stage. Fargate over Kubernetes. Managed Postgres over self-managed. Managed identity provider over custom auth.
-- Accept that the operational layer will be the weakest part of the system for a while. Document the gap. Don't pretend it's not there.
-
-**When AI-assisted development is heavy:**
-
-- The testing boundary leads everything else. TDD with the LLM is the only protection against plausible-but-wrong code at speed.
-- The naming, module-communication, and data-ownership boundaries become more important, not less — they constrain the LLM's output space.
-- Codify architectural intent in machine-readable form (`CLAUDE.md`, `.cursorrules`, ESLint rules, pre-commit guards) so the LLM is constrained even when the senior isn't reviewing every output.
-
-## What to accept temporarily, what to fight for
-
-**Accept temporarily:**
-
-- A weaker observability layer if the team is fewer than five engineers and the product is pre-revenue.
-- A simpler deployment shape (managed container service with one replica) if the customer base is internal or pre-launch.
-- Manual rotation on a small set of secrets if automatic rotation requires platform features you don't have.
-- A flaky-test quarantine list that's longer than you'd like, as long as it has tracked dates.
-
-**Fight for:**
-
-- IAM hygiene (no long-lived keys in CI, no shared accounts). Cost is low; blast radius of getting it wrong is total.
-- IaC crown-jewel protection (`prevent_destroy` or equivalent on the primary database). Cost is one line; blast radius of getting it wrong is the company.
-- A centralized error-handling and logging module from day one. Cost is one afternoon; cost of retrofitting after the first incident is weeks.
-- The testing baseline on critical paths. Cost is the time it takes; cost of not having it is every regression for the life of the product.
-- Secrets out of the repository and out of CI environment variables. Cost is one engineer-day; cost of getting it wrong is a credential breach.
-
-## What this document is not
-
-A complaint. A blueprint for surviving a bad org without leaving. A list of excuses for not landing the boundaries.
-
-It is honest about a reality the pack would otherwise pretend doesn't exist: that some operators are fighting for the infrastructure their boundaries describe, not just implementing it. The boundaries don't change. The order in which they're landed, the political work attached to each, and the trade-offs the operator has to accept temporarily — those do.
+The boundaries do not move. The orgs that can hold them do.
