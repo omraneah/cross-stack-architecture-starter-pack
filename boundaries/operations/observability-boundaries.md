@@ -2,6 +2,8 @@
 
 **Production behavior is observable in three layers: events (logs, traces) for what happened, metrics for trends, SLOs for whether the system is meeting its promise. Each layer has its own discipline and its own cost model.**
 
+**Applies when:** production traffic (any service handling real user or system requests in a live environment).
+
 ## Why it matters
 
 - A system without SLOs is operated by hunch. Outages are graded by who's awake and how loudly they complain.
@@ -27,6 +29,7 @@
 
 - Tag dimensions chosen for aggregation, not for traceability. User ID, request ID, tenant ID belong in logs and traces, not as metric labels.
 - A metric label set whose cardinality exceeds a few thousand combinations is a budget event; review before deploying.
+- A `tenant_id` label on a counter looks innocent until you have 50k tenants and the metrics backend bill triples in a week. Cardinality bombs are silent until they aren't — anything user-or-tenant-shaped belongs in trace tags or log fields, not metric labels.
 
 **Distributed tracing:**
 
@@ -57,3 +60,5 @@ Traces → ID generated at edge, propagated to every downstream call
 Errors → emitted to a tracker with service, operation, tenant tags
 Incidents → postmortem within one week, remediations into the backlog
 ```
+
+**Severity floor if violated:** P1 by default — gaps compound; the cost of adding instrumentation later is paid every incident. P0 for SLO-breach blindness on a revenue-bearing path. May step down by one tier in pre-revenue prototypes.

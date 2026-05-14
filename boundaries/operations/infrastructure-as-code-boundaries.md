@@ -2,6 +2,8 @@
 
 **All infrastructure is defined in code. The few resources whose accidental destruction is catastrophic are imported under lifecycle protection; everything else is fully IaC-owned.**
 
+**Applies when:** cloud-hosted production (any non-trivial deployment past prototype).
+
 ## Why it matters
 
 - Manual cloud resources drift, miss security review, and disappear with the engineer who created them.
@@ -47,3 +49,5 @@ Tenant-scoped → IaC + isolated state per tenant/pool
 Secrets → cloud secret service; declared in IaC, valued out-of-band
 CI → format check → init → validate → security scan → plan → human review → apply
 ```
+
+**Severity floor if violated:** P0 for a missing `prevent_destroy` on a crown-jewel resource (primary database, identity service) — one bad plan can be the company-ending event. P1 for standard infrastructure outside IaC ownership. May step down by one tier in pre-revenue prototypes before the first paying customer.

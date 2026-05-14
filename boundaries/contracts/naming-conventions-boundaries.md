@@ -2,6 +2,8 @@
 
 **Each layer has one naming convention. The convention is enforced automatically. No transformation layer sits between layers as long-term state.**
 
+**Applies when:** always — any codebase with a persistence layer and an API surface.
+
 ## Why it matters
 
 - Mixed naming conventions force every developer to translate mentally; the inconsistency creates serialization bugs at boundaries.
@@ -46,3 +48,5 @@ Persistence layer → one convention; mapping in entity / repository only
 File naming → language / framework convention
 Enforcement → linter or formatter fails CI on violation
 ```
+
+**Severity floor if violated:** P2 — discipline drift, mostly cosmetic at small scale. Steps up to P1 in dense codebases where inconsistency costs mental translation cycles on every change, and to P0 if a transformation interceptor at the API boundary is masking a breaking-change to mobile clients.

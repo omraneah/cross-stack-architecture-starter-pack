@@ -2,6 +2,8 @@
 
 **Tests are first-class engineering artifacts. The testing muscle is built from day one. Retrofitting tests later is the most expensive form of technical debt — and the one teams skip the most.**
 
+**Applies when:** always — any codebase under active development.
+
 ## Why it matters
 
 - A codebase without tests becomes unchangeable as it grows; the cost of regression becomes the cost of every change.

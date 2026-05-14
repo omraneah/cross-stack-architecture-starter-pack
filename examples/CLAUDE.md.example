@@ -1,0 +1,126 @@
+<!--
+Portable agent-rails example for the cross-stack-architecture-starter-pack.
+
+Drop in at <project-root>/CLAUDE.md (or equivalent for Cursor, Aider, Continue, etc.).
+No project-specific paths to replace — this file is portable as-is.
+
+If you have vendored the starter pack at docs/architecture/starter-pack/, the
+boundary references below already resolve there. If you reference the pack
+externally, replace the leading path with the public URL to the pack repo.
+-->
+
+# CLAUDE.md
+
+This file orients any AI coding agent operating in this repository.
+
+## Architectural source of truth
+
+This codebase follows the boundaries described in the [cross-stack-architecture-starter-pack](https://github.com/omraneah/cross-stack-architecture-starter-pack). The pack defines 19 boundaries, a set of organizational no-gos, and a doctrine of one operator's choices. Before suggesting structural changes, read the relevant boundary file and surface the trade-off explicitly. Do not auto-prescribe.
+
+If the pack is vendored into this repository, it lives at `docs/architecture/starter-pack/`. If it is read externally, reference it by URL.
+
+---
+
+## Hard-stop rules (P0 boundaries — refuse to violate)
+
+Refuse to ship code, configuration, or migrations that violate any of these. Refuse means: explain the violation, point at the boundary file, and ask the operator whether to proceed anyway with explicit acknowledgement.
+
+- **Auth.** Never put the auth-provider SDK in a business module. Never store the provider's user ID on a business table. Never derive a role from a JWT claim or auth-provider group. (`boundaries/identity-access/auth-boundaries.md`)
+- **IAM & platform access.** Never introduce a long-lived cloud access key — in CI, on a workload, on a developer laptop. Use OIDC for CI; instance profiles or workload-identity federation for runtimes. (`boundaries/identity-access/iam-and-access-control-boundaries.md`)
+- **Secrets.** Never commit a real secret value (`.env` with real values, API key, signing key, DB password) — in current files or in history. Never inject a secret via Dockerfile `ENV` at build time. (`boundaries/identity-access/secrets-management-boundaries.md`)
+- **Multi-tenancy.** Never accept a tenant identifier from caller input (body, query, path, header). Resolve tenant context from the authenticated user at the edge; enforce filtering at the repository layer. (`boundaries/tenancy/multi-tenancy-boundaries.md`)
+- **Tenant, user, role.** Never read a role from auth-provider claims for an authorization decision. Roles come from the application database. (`boundaries/tenancy/tenant-user-role-boundaries.md`)
+- **Infrastructure as code.** Never write an IaC resource for a crown-jewel (primary database, identity service) without `prevent_destroy` or the platform's equivalent lifecycle protection. (`boundaries/operations/infrastructure-as-code-boundaries.md`)
+- **Production data integrity.** Never ship a migration without a working `down()` or an explicit, documented irreversibility note. Never run an unbounded `UPDATE` or `DELETE` against a production table without batching. (`boundaries/operations/production-data-integrity-boundaries.md`)
+
+## Conditional hard-stops (P0 in context)
+
+These step up to P0 when the context matches. Flag explicitly when the trigger is in scope.
+
+- **Customer-facing service without a load balancer and ≥ 1 healthy replica.** (`boundaries/operations/cloud-deployment-posture-boundaries.md`)
+- **Money-mutating async handler without an idempotency key.** (`boundaries/operations/async-handler-resilience-boundaries.md`)
+- **Health check that returns 200 while a critical dependency is down, wired into LB or autoscaler routing.** (`boundaries/operations/operational-integrity-boundaries.md`)
+- **`continue-on-error` or `soft_fail` on a security check in CI without a tracked deadline.** (`boundaries/discipline/quality-security-boundaries.md`)
+- **No automated test on a revenue-bearing path.** (`boundaries/discipline/testing-boundaries.md`)
+- **Privileged actions (deletions, role changes, exports) without an audit trail in a B2B / regulated context.** (`boundaries/operations/logging-and-error-handling-boundaries.md`)
+- **High or critical dependency advisory shipped to production without an inline justification and a tracked remediation date.** (`boundaries/discipline/quality-security-boundaries.md`)
+
+---
+
+## Before any edit
+
+Run this checklist before producing a diff:
+
+1. **Which boundary does this change touch?** Name the file. If none, the change is probably scoped correctly. If more than one, the change is probably too large to ship in a single PR — split it.
+2. **Does the change satisfy or violate the boundary?** Cite the section (`Signals of violation in an audited codebase`) you checked.
+3. **If there is a violation, can the change avoid it?** Default answer: yes. If no, surface the trade-off and ask for explicit acknowledgement before shipping the violation.
+4. **Does the change introduce new state that another module owns?** Route through the owner's service. (`boundaries/architecture/data-ownership-boundaries.md`)
+5. **Does the change introduce a secret, a credential, a signing key?** Stop. Apply the secrets-management boundary before continuing.
+6. **Does the change cross a tenancy line?** Resolve tenant context from authenticated identity only. Never from caller input.
+
+---
+
+## Flagging boundary violations in your own diffs
+
+When the agent's own diff would violate a boundary, the agent does not silently ship the violation. The agent inserts a comment in the diff in the form:
+
+```
+// BOUNDARY-FLAG[<severity>]: <boundary-name> — <one-line rationale>
+//   See: <path-to-boundary-file>
+//   Operator decision required: <yes|no>
+```
+
+Example:
+
+```typescript
+// BOUNDARY-FLAG[P0]: auth-boundaries — role read from claims.groups in a business module
+//   See: docs/architecture/starter-pack/boundaries/identity-access/auth-boundaries.md
+//   Operator decision required: yes
+const role = decodedToken.groups[0];
+```
+
+This makes the violation visible at PR-review time, instead of being hidden in the diff volume.
+
+---
+
+## Audit-mode trigger
+
+When the operator types `/audit` — or any equivalent slash-command / skill the operator wires up — run the protocol from the pack's `APPLY-WITH-LLM.md`:
+
+1. For each of the 19 boundaries, identify whether the code at HEAD satisfies, partially satisfies, or doesn't address the boundary. If the boundary's `Applies when:` predicate doesn't match this codebase, mark it "Not applicable" and explain why.
+2. For each gap, apply the severity floor from the boundary file (with documented context-based step-up or step-down).
+3. Cite specific files and line ranges as evidence.
+4. Surface the choice, not the prescription — the boundary names alternatives; the audit shows which side the code is on.
+5. Output a per-boundary section, a ranked top-risks list, and a "what's already strong" section.
+
+The agent does not auto-fix during an audit. The audit is a thinking aid; remediation is a separate operator decision.
+
+---
+
+## What the agent does NOT do
+
+- Rename internal identifiers to match the pack's terminology — the pack describes principles; the codebase's actual naming may be valid.
+- Demand a specific naming convention (`camelCase` vs `snake_case`) — only that one convention is applied consistently per layer.
+- Auto-prescribe a doctrine choice as a violation. The doctrine (`DOCTRINE.md`) is one operator's picks; this codebase may legitimately differ.
+- Add boundaries the pack doesn't define (cron-job idempotency, PII-discipline, rate-limiting, etc.) without asking the operator first.
+- Reformat or restructure existing code "while I'm here" — every change is single-concern and reviewable.
+
+---
+
+## Out of scope for the pack
+
+If a question is about GraphQL evolution patterns, real-time / WebSocket scaling, compliance frameworks (SOC2, HIPAA, PCI), multi-region deployment, FinOps / cost engineering, native-mobile specifics beyond cross-platform frameworks, or data-platform engineering at scale — the pack does not address it. Say so and offer to reason from first principles rather than citing the pack.
+
+---
+
+## How to talk to the agent about boundaries
+
+Useful phrasings:
+
+- **"Apply boundary X to this file."** — runs a single-boundary deep dive.
+- **"Audit this PR against the pack."** — runs the audit protocol on the diff.
+- **"What's the trade-off here?"** — the agent surfaces the alternatives from the relevant boundary's `The judgment` section.
+- **"What's the doctrine on this?"** — the agent reads `DOCTRINE.md` and cites the operator's pick if one exists.
+- **"Is this codebase's choice on boundary X defensible?"** — the agent surfaces which side of the trade-off the code is on and whether the context justifies it.
+
+The pack is a thinking tool, not a rule book. The agent is a thinking partner, not an enforcer.

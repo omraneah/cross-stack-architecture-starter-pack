@@ -2,6 +2,8 @@
 
 **Every user belongs to at least one tenant and has at least one role. The model anticipates role transitions, admin lifecycle, and audit needs from day one.**
 
+**Applies when:** multi-tenant system with role hierarchy (more than one tier of user inside a tenant). Skip if single-tenant or flat-user-model.
+
 ## Why it matters
 
 - A user without a tenant context becomes a wildcard the first time access policies are skipped.
@@ -51,3 +53,5 @@ Critical-tier admin → cannot be deleted via the application
 Role transitions → either in-place + audit log OR delete-and-recreate; document which and why
 Every authorization decision → backend-derived role, not auth claims
 ```
+
+**Severity floor if violated:** P0 — role-from-claims or unaudited admin transitions are privilege-escalation surfaces. May step down by one tier in internal-only tools with a single admin tier and no external customers.

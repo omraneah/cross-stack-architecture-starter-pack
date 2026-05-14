@@ -2,6 +2,8 @@
 
 **Humans access cloud platforms via federated identity (SSO). Systems access them via short-lived federated trust (OIDC, instance roles). No long-lived credentials anywhere.**
 
+**Applies when:** cloud-hosted production (any system running on a managed cloud platform with workload identity available).
+
 ## Why it matters
 
 - Long-lived access keys leaked into a log, an artifact, a dependency, or an old laptop have indefinite blast radius.

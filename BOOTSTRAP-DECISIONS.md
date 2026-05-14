@@ -53,22 +53,23 @@ A decision tree for new projects. Skip the ritual; answer the questions in order
 
 The boundaries are not strictly sequential, but some depend on others. Land the dependencies before the dependents.
 
-- **Naming-conventions** is a precondition for everything else; lock the convention before writing the first table or DTO.
-- **Testing** ships on day one — framework installed, first unit test before the first feature. Without the muscle built early, retrofitting later is the most expensive form of debt.
-- **Logging-and-error-handling** ships on day one too — one centralized logger, one centralized error module. The cost is an afternoon; retrofitting is weeks.
-- **Engineering-practices** and **quality-security** can be set up at any time but pay back best on day 1 (pre-commit and CI gates running from the first commit).
-- **Operational-integrity** is also day-1 cheap: termination handlers, correlation IDs, structured logs cost almost nothing if added at the start; retrofitting them later is painful.
-- **Auth-boundary** comes before **multi-tenancy** and **tenant-user-role** — without an authenticated identity in the request context, the latter two have nothing to scope from.
-- **Secrets-management** co-lands with **iam-and-access-control** and **infrastructure-as-code** — the workload identity, the secret-service resource, and the IAM role are one decision.
-- **Multi-tenancy** is a precondition for **data-ownership** and any access-policy work. Decide the isolation model (shared table vs schema-per-tenant) before designing modules.
-- **Module-communication** is a precondition for **data-ownership** and **async-handler-resilience** — both build on the event-bus pattern.
-- **API-versioning** depends on **naming-conventions** for the boundary convention; the route shape is locked in v1.
-- **Cloud-deployment-posture** is the customer-facing floor — load balancer, healthy replica, deploy-without-dropping-connections. Below this, every release event is a coin flip. Lands before first customer.
-- **Infrastructure-as-code** and **iam-and-access-control** can be set up early or progressively; the cost of progressive is one disruptive migration when retrofitting crown-jewel resources.
-- **Async-handler-resilience** triggers as soon as the first cross-module handler exists. Don't land an event handler without the four resilience layers — retrofitting them later means digging through every emit site.
-- **Observability** depends on **operational-integrity** (structured logging, correlation IDs) being in place. SLOs and traces layer on top.
+```mermaid
+flowchart TD
+    naming[naming-conventions] --> platform
+    naming --> av[api-versioning]
+    platform["platform &amp; identity (co-land):<br/>iam · secrets · iac"] --> auth[auth-boundaries]
+    auth --> mt[multi-tenancy] --> do[data-ownership]
+    auth --> tur[tenant-user-role]
+    mc[module-communication] --> do
+    mc --> ahr[async-handler-resilience]
+    op[operational-integrity] --> obs[observability]
+```
 
-Use this map to identify what depends on what; then sequence based on the answers above.
+Arrow direction reads "land before"; the `platform` node reads "co-land as one decision".
+
+**Also day-1 floor — no graph dependencies, but day-1 cheap and day-N expensive:** `testing`, `logging-and-error-handling`, `quality-security`, `engineering-practices`. **Triggered by context, not by graph position:** `production-data-integrity` (the moment a persistent store has customer data), `cloud-deployment-posture` (before first customer-facing traffic).
+
+Use the map to identify what depends on what; then sequence based on the answers above.
 
 ---
 

@@ -12,12 +12,12 @@ The boundaries hold up to around Series A. Past that, the shape of the company c
 
 ## What this is
 
-- **19 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape, severity floor.
+- **19 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the `Applies when:` predicate, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape, severity floor.
 - **A doctrine** (`DOCTRINE.md`). One operator's choices, anonymized. Reference, not requirement.
 - **A list of organizational no-gos** (`ORG-CONTEXT.md`). Six structural patterns that make the pack impossible to apply — independent of role-by-headcount framing.
-- **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one. Includes an output template and a sample audit run.
-- **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What depends on what when starting from zero.
-- **Worked examples** in `examples/`. Concrete (illustrative) stacks showing what "right shape" looks like in code.
+- **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one. Includes severity scale, output template, and the rule that boundaries whose `Applies when:` predicate doesn't match are skipped, not partially graded.
+- **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What depends on what when starting from zero, with a dependency map.
+- **Worked examples** in `examples/`: a sample audit output (`audit-output-sample.md`), a sample bootstrap output (`bootstrap-output-sample.md`), a single-boundary applied example (`auth-boundary-applied.md`), and a portable agent-rails file (`CLAUDE.md.example`) that drops into any project to make the pack self-bootstrapping for AI coding agents.
 
 ## What this is NOT
 

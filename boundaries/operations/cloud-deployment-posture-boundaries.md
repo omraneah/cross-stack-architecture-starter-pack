@@ -2,6 +2,8 @@
 
 **Customer-facing services run behind a load balancer, with at least one healthy replica, on a deploy that doesn't drop connections. The absence of high availability at any of these layers is a conscious, documented trade-off — not a default.**
 
+**Applies when:** customer-facing service (any service serving real users, partners, or paying customers in production). Skip for internal tooling, batch jobs, scheduled workers.
+
 ## Why it matters
 
 - A single instance behind an Elastic IP is a single point of failure. Every deploy is a customer-visible outage; every instance failure is a customer-visible outage.
