@@ -28,7 +28,7 @@
 **Sync vs async:**
 
 - Async events for cross-module domain communication. Default.
-- Synchronous calls are acceptable for infrastructure (database, cache, SDK wrapper) where latency is bounded and the call is non-domain.
+- Synchronous calls are acceptable for infrastructure (database, cache, SDK wrapper) where the call's p99 latency is bounded by a service-level budget — typically under 100ms intra-region, defined per call site — and the call is non-domain. A third-party API call with unbounded latency is not infrastructure; it's a dependency that needs async treatment.
 - Synchronous calls disguised as events (an emit-async call whose return value is awaited) are forbidden — they recreate coupling while pretending to decouple.
 
 ## Signals of violation in an audited codebase

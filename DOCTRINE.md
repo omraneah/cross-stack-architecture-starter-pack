@@ -156,8 +156,14 @@ Why: a single transaction across millions of rows is a deadlock-and-retry waitin
 **CI is the authority. No manual override.**
 Why: every "we'll bypass CI just this once" eventually merges the bug it was supposed to catch. The day the override is available is the day it's used.
 
-**Pre-commit and CI run the same categories of checks. Pre-commit is fast feedback; CI is final.**
-Why: a check that runs only in CI surprises developers at PR time. A check that runs only locally can be bypassed. Same categories, different speeds.
+**Pre-commit runs format + lint + type-check + dependency-audit. NOT unit tests.**
+Why: developer feedback loop is more valuable than catching what CI will catch anyway. Unit tests on pre-commit slow every commit by enough that developers batch their work into bigger commits — which means bigger PRs and slower reviews, exactly what the discipline is trying to prevent.
+
+**One SAST tool, one dependency scanner, one secret-leak scanner. Not three of each.**
+Why: every tool needs a triage owner. Three SAST tools mean three queues of findings no one looks at. Pick one, tune it well, treat its output as production signal.
+
+**Dependency advisory remediation: high/critical fixed within one sprint; medium within one quarter; low at the next major refactor of the affected area.**
+Why: not all advisory findings deserve emergency response; without explicit thresholds, every advisory becomes either ignored or panic-fixed.
 
 **High and critical vulnerabilities block merge. Suppressions require inline justification and a tracked remediation date.**
 Why: a suppressed vulnerability is one developer's "I'll fix this later" turning into the codebase's accepted risk. The justification + date is the cheapest discipline that prevents silent accumulation.
@@ -166,8 +172,8 @@ Why: a suppressed vulnerability is one developer's "I'll fix this later" turning
 
 ## Engineering Practices
 
-**Boring beats clever.**
-Why: the next person to read this code may be exhausted at 3 AM. Clever is invisible cognitive load every time the code is touched.
+**I write the code that survives me being hit by a bus tomorrow. Not the code I'd be proud of in a code-golf contest.**
+Why: every clever solution I've shipped came back as the area no one wanted to touch six months later. The cost of clever is paid every time the code is read; the cost of verbose is paid once when it's written. I'd rather ship the verbose version and not be the bottleneck the team has to wait for.
 
 **Fix the cause, not the symptom.**
 Why: the null pointer is the symptom; the contract that allowed null is the cause. Patching the symptom propagates — the next caller adds another null check, then another.

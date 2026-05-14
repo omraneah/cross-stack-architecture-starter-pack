@@ -49,20 +49,22 @@ A decision tree for new projects. Skip the ritual; answer the questions in order
 
 ---
 
-## 7. Order of work
+## 7. Dependencies between boundaries
 
-Default sequence when most answers above are typical:
+The boundaries are not strictly sequential, but some depend on others. Land the dependencies before the dependents.
 
-1. Repository structure, pre-commit, CI baseline — `engineering-practices`, `quality-security`.
-2. Operational integrity baseline (logging, correlation IDs, SIGTERM, health checks) — `operational-integrity`.
-3. Database schema with naming convention and migration discipline — `production-data-integrity`, `naming-conventions`.
-4. Auth boundary and request context — `auth`, `multi-tenancy`, `tenant-user-role`.
-5. Module boundaries and data ownership — `module-communication`, `data-ownership`.
-6. API contract with versioning — `api-versioning`, `naming-conventions` for the API surface.
-7. IaC for non-crown-jewel resources, OIDC for CI — `infrastructure-as-code`, `iam-and-access-control`.
-8. Async event resilience as soon as the first cross-module handler exists — `async-handler-resilience`.
+- **Naming-conventions** is a precondition for everything else; lock the convention before writing the first table or DTO.
+- **Engineering-practices** and **quality-security** can be set up at any time but pay back best on day 1 (pre-commit and CI gates running from the first commit).
+- **Operational-integrity** is also day-1 cheap: termination handlers, correlation IDs, structured logs cost almost nothing if added at the start; retrofitting them later is painful.
+- **Auth-boundary** comes before **multi-tenancy** and **tenant-user-role** — without an authenticated identity in the request context, the latter two have nothing to scope from.
+- **Multi-tenancy** is a precondition for **data-ownership** and any access-policy work. Decide the isolation model (shared table vs schema-per-tenant) before designing modules.
+- **Module-communication** is a precondition for **data-ownership** and **async-handler-resilience** — both build on the event-bus pattern.
+- **API-versioning** depends on **naming-conventions** for the boundary convention; the route shape is locked in v1.
+- **Infrastructure-as-code** and **iam-and-access-control** can be set up early or progressively; the cost of progressive is one disruptive migration when retrofitting crown-jewel resources.
+- **Async-handler-resilience** triggers as soon as the first cross-module handler exists. Don't land an event handler without the four resilience layers — retrofitting them later means digging through every emit site.
+- **Observability** depends on **operational-integrity** (structured logging, correlation IDs) being in place. SLOs and traces layer on top.
 
-Adjust based on the answers to questions 1–6.
+Use this map to identify what depends on what; then sequence based on the answers above.
 
 ---
 

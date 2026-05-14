@@ -1,30 +1,32 @@
 # Governance
 
-## Ownership
+## What this repo is
 
-This repository is owned by its author. The boundaries are non-negotiable in shape; the choices they ask the reader to make are the reader's.
+A reference set of architectural boundaries. The author maintains it; readers use it however serves them. There is no organization to enforce against, no compliance to opt into. The repo is a thinking tool, not a policy document.
 
-## Authority
+## What "non-negotiable" means here
 
-- **Boundaries are non-negotiable.** The principle, the signals of violation, and the minimum viable shape are constraints.
-- **Choices are open.** Each boundary's *Judgment* section names trade-offs. Different operators on different systems will pick differently.
-- **Exceptions are explicit.** A deviation from a boundary's minimum viable shape requires a documented rationale.
+Within this pack: the *principle* of each boundary is non-negotiable. The judgment section names trade-offs honestly; alternatives are valid; the principle itself stands.
 
-## Mandatory usage
+In your team or codebase: the boundaries are reference, not policy. You decide which to apply, in what order, and where the trade-offs land for your context.
 
-- Engineers read and apply the boundaries on every architectural change.
-- AI tools respect the boundaries when generating, reviewing, or modifying code.
-- Violations are rejected in review.
+## Doctrine vs boundary
 
-## Exceptions
+The boundaries describe principles that hold across operators. The doctrine (`DOCTRINE.md`) is one operator's specific picks within those principles. Treat the doctrine as a worked example of how one set of choices plays out; not as a recommendation to copy.
 
-Any deviation from a boundary's minimum viable shape requires:
+## How the repo evolves
 
-1. An explicit, documented rationale.
-2. A tracked plan to restore compliance, where applicable.
+Pull requests that are welcome:
 
-Silent exceptions are not permitted.
+- Sharpen a boundary's wording — a clearer principle, a more honest judgment, a more specific signal of violation.
+- Name a failure mode the author missed.
+- Add a worked example to `examples/` for a stack not yet covered.
+- Correct a misstatement, a typo, or a broken cross-reference.
 
-## Proposing changes
+Pull requests that are not the right fit:
 
-Open a pull request with the proposed change and the rationale. Changes to a boundary's principle are reviewed for downstream consistency across the rest of the pack.
+- Embedding a specific framework's syntax inside a boundary (those go to `examples/`).
+- Converting the doctrine into "best practice" — the doctrine is one operator's choices, not consensus.
+- Adding boundaries for areas the author hasn't operated (see README *Limitations*).
+
+The author makes the final call on what's a principle (boundary) vs an opinion (doctrine) and ships changes accordingly.

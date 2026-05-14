@@ -51,6 +51,55 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 - A ranked list of the highest-risk gaps (top 3 to 5, depending on what the audit found).
 - A "what's already strong" section so the report is honest about wins, not just gaps.
 
+**Per-boundary entry template (markdown):**
+
+```
+## <boundary-name>
+
+**State:** Satisfied / Partially satisfied / Not addressed
+
+**Evidence:**
+- `<file path>:<line range>` — <one-line description>
+- `<file path>:<line range>` — <one-line description>
+
+**Severity:** <P0 | P1 | P2 | n/a> — <one-line rationale>
+
+**Choice surfaced:** <the trade-off the boundary names; which side the codebase is currently on; whether that side fits the codebase's context>
+
+**Recommended next step:** <one concrete action; for P0, "stop and fix"; for P1, "schedule"; for P2, "opportunistic">
+```
+
+**Sample audit run (fictional codebase: small B2C marketplace, Node.js + Postgres + provider auth, single AWS region):**
+
+```
+## auth-boundaries
+
+**State:** Partially satisfied
+
+**Evidence:**
+- `src/services/order.service.ts:23` — provider user ID used directly in a business query
+- `src/services/order.service.ts:31` — role read from `decodedToken.groups[0]`
+- `src/auth/auth-guard.ts:18` — provider SDK isolation is correct on the guard side
+
+**Severity:** P0 — provider lock-in at the data layer plus role derivation from claims. A provider migration today would touch every business module; a provider-side group change becomes an application permission change without a deploy.
+
+**Choice surfaced:** The codebase has implicitly chosen "provider ID as internal ID." The boundary names this as acceptable only when the provider is permanently locked-in. No signals here suggest that lock-in is intentional.
+
+**Recommended next step:** Stop and fix. Add a provider-mapping table; thread the translation through the guard; remove provider IDs from business modules. Estimated effort: 2–4 engineer days plus a one-time data migration.
+
+## Top risks
+
+1. **[P0] auth-boundaries:** Provider lock-in at the data layer; role derivation from claims — `src/services/order.service.ts:23,31`.
+2. **[P0] production-data-integrity:** Three migrations in `migrations/` have no `down()`; one alters `users.email` with no batching — `migrations/0042_user_email_normalize.sql`.
+3. **[P1] async-handler-resilience:** No idempotency keys on events emitted by the order service; replay corrupts inventory counts — `src/services/order.service.ts:48`.
+
+## What's already strong
+
+- **api-versioning-boundaries:** All controllers declare `/api/v1`; client SDK config uses the versioned base URL — `src/routes/*.ts`, `clients/sdk-config.ts:8`.
+- **module-communication-boundaries:** Cross-module communication is uniformly event-based; the dependency graph is a clean DAG.
+- **engineering-practices-boundaries:** Test suite hits 78% line coverage on critical paths; pre-commit and CI run aligned check sets.
+```
+
 ---
 
 ## Bootstrap mode protocol
