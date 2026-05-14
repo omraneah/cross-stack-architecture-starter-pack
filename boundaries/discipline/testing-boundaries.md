@@ -8,7 +8,7 @@
 
 - A codebase without tests becomes unchangeable as it grows; the cost of regression becomes the cost of every change.
 - Tests written months after the code are tests against current behavior, not against the spec — they entrench whatever bugs the code has.
-- Agent Tech Engineering without tests is fast and broken; tests are the spec the AI agent optimizes against. Without them, the AI agent ships plausible code that drifts from intent.
+- agentic engineering without tests is fast and broken; tests are the spec the AI agent optimizes against. Without them, the AI agent ships plausible code that drifts from intent.
 - Critical user paths without end-to-end coverage means every deploy is a customer-facing roll of dice.
 
 ## The judgment
@@ -19,7 +19,7 @@
 - End-to-end tests for critical user journeys (signup, login, the core revenue-generating flow). Non-negotiable as soon as the journey is real. The exact framework matters less than the muscle.
 - Integration tests for high-risk paths (auth, payments, third-party integrations). Added incrementally as the journey solidifies; not a day-one mandate but a near-term one.
 
-**How to test under Agent Tech Engineering:**
+**How to test under agentic engineering:**
 
 - TDD: write the test first. Tell the AI agent exactly what behavior the test asserts; then have it write the implementation. The test is the spec.
 - Test both the happy path and the forbidden path. For risk-bearing operations (auth, payment, deletion, role escalation), test that the risk is mitigated explicitly, not just that the success case works.
@@ -45,7 +45,7 @@
 Day 1 → testing framework installed; first unit test ships before the first feature
 Every new function → at least one happy-path test + one forbidden-path test
 Critical user journey identified → end-to-end test exists before launch
-Agent Tech-engineered code → TDD: test prompt → test → implementation
+Agentically engineered code → TDD: test prompt → test → implementation
 High-risk path (auth, payment, deletion, role escalation) → integration test before the path is feature-frozen
 CI → coverage threshold gate; flaky tests tracked; no silent skips
 ```
