@@ -14,11 +14,13 @@ This pack is designed to be read by an LLM as input to a codebase audit or a boo
 
 Used throughout the audit output. Severity is the product of blast radius (how much breaks when the gap is exploited or surfaces) and likelihood (how often the gap will be hit in normal operation), not just one or the other.
 
-- **P0** — Active integrity, security, or availability risk. Examples: cross-tenant data leakage, secrets in repository history, production database without `prevent_destroy`, no graceful shutdown on user-facing services, an API surface with no auth on a non-public endpoint.
-- **P1** — Structural debt that compounds. Examples: business logic duplicated between client and server, no API versioning on a public surface, untracked high-severity dependency vulnerabilities, missing audit log on privileged actions, schema migration with no rollback.
+- **P0** — Active integrity, security, or availability risk. Examples: cross-tenant data leakage, secrets in repository history, production database without `prevent_destroy`, no graceful shutdown on user-facing services, an API surface with no auth on a non-public endpoint, a customer-facing service running single-instance with shell-script deploy.
+- **P1** — Structural debt that compounds. Examples: business logic duplicated between client and server, no API versioning on a public surface, untracked high-severity dependency vulnerabilities, missing audit log on privileged actions, schema migration with no rollback, no centralized error module.
 - **P2** — Discipline drift. Examples: inconsistent naming conventions, lint suppressions without justification, README that points at deleted files, test suite with skipped tests and no follow-up.
 
 A P0 found during audit halts further design work until addressed. A P1 enters the architecture backlog with a tracked remediation date. A P2 is fixed opportunistically.
+
+**Per-boundary severity floors.** Each boundary file ends with a *Severity floor if violated* line that names the default severity for a violation of that boundary. The audit can override based on context — a P1 in a regulated B2B context may become P0; a P0 in an internal-tool context may step down to P1. The floor is the starting point, not the verdict.
 
 ---
 
@@ -26,7 +28,7 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 
 **Inputs to the LLM:**
 
-1. This pack (the 14 boundaries + `DOCTRINE.md`).
+1. This pack (the 19 boundaries + `DOCTRINE.md`).
 2. The target codebase, or a representative subset (module structure, auth flow, migration set, CI workflows, a few critical service files).
 3. The audit shape: broad audit, single-boundary deep dive, or pre-engagement risk read.
 
@@ -122,7 +124,7 @@ A P0 found during audit halts further design work until addressed. A P1 enters t
 
 A workable brief, kept tight:
 
-> Read this pack. Audit the codebase at `<path>` against the 14 boundaries. For each boundary: current state, severity of gaps (P0/P1/P2 as defined in APPLY-WITH-LLM.md), choice the operator has to surface. Don't prescribe — surface alternatives. Output a per-boundary report, a ranked top-risks list, and a "what's already strong" section. The doctrine is one operator's choices; treat as reference, not requirement.
+> Read this pack. Audit the codebase at `<path>` against the 19 boundaries. For each boundary: current state, severity of gaps (P0/P1/P2 as defined in APPLY-WITH-LLM.md), choice the operator has to surface. Don't prescribe — surface alternatives. Output a per-boundary report, a ranked top-risks list, and a "what's already strong" section. The doctrine is one operator's choices; treat as reference, not requirement.
 
 The LLM produces a report; the operator decides what to do with it.
 
