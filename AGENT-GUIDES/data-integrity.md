@@ -167,7 +167,7 @@ if (!exists.length) {
 **Violation 3:** Large table migration without batching (locks table).
 ```typescript
 // WRONG — single UPDATE on millions of rows holds a lock
-await queryRunner.query(`UPDATE bookings SET status = 'archived' WHERE created_at < '2023-01-01'`);
+await queryRunner.query(`UPDATE entities SET status = 'archived' WHERE created_at < '2023-01-01'`);
 ```
 **Correction:** Process in batches of N rows. Each batch is a separate transaction. The migration can be interrupted and resumed safely.
 

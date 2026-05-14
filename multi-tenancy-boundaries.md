@@ -229,50 +229,6 @@ When a service needs to retrieve tenant-scoped data:
 
 ---
 
-## Forward Constraint (SaaS Compatibility)
+## Governance
 
-All multi-tenant behaviour must remain compatible with:
-
-- **Strict tenant isolation** — no data leakage between tenants
-- **Per-tenant billing** — financial operations scoped by tenant
-- **Permission models** — role-based access within tenant boundaries
-- **Tenant lifecycle events** — rename, merge, split without breaking invariants
-- **Analytics and reporting** — tenant-scoped data aggregation
-- **Integration boundaries** — external systems respect tenant isolation
-
-Any change that weakens these guarantees is **invalid**.
-
----
-
-## Ownership & Change Policy
-
-**This document is owned by the CTO**
-
-- Architectural invariants are **non-negotiable**
-- Teams may propose implementation changes
-- Principles and boundaries require **explicit CTO approval**
-- Only the CTO may modify these rules
-
----
-
-## Quick Reference
-
-### DO
-
-- Resolve `tenantId` from `RequestContext`
-- Use access policies for tenant filtering
-- Enforce scoping at Repository level
-- Derive tenant context from authenticated user
-- Filter all tenant-owned queries
-
-### DON'T
-
-- Accept `tenantId` from request parameters
-- Implement multi-tenancy logic in controllers
-- Send `tenantId` from client code
-- Use global queries on tenant-owned data
-- Hard-code tenant identifiers
-
----
-
-**This document is the authoritative source of truth for multi-tenancy architecture across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

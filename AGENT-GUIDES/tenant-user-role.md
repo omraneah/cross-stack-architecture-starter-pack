@@ -13,7 +13,7 @@
 
 2. **User without a tenant slips through and becomes a wildcard.** An unscoped user has no tenant context. Access policies that enforce tenant scoping find no `tenantId` on the user. In the best case, the request errors. In the worst case, the user is treated as a platform-level actor with access to everything.
 
-3. **User moved between tenants carrying cross-tenant data.** A direct transfer (changing the `tenantId` field on a user record) leaves the user's historical data associated with the old tenant while they operate in the new tenant. They carry booking history, preferences, and activity logs that belong to the previous tenant's isolation boundary.
+3. **User moved between tenants carrying cross-tenant data.** A direct transfer (changing the `tenantId` field on a user record) leaves the user's historical data associated with the old tenant while they operate in the new tenant. They carry domain history, preferences, and activity logs that belong to the previous tenant's isolation boundary.
 
 4. **Owner user deleted via application, breaking the tenant's administrative access.** The highest-privilege administrative user is the only one who can create other admins, perform lifecycle operations, and do break-glass actions. If the application allows deleting the owner, the tenant loses its administrative recovery path. Restoration requires a manual database operation.
 
@@ -52,13 +52,13 @@ Every user is fully specified by these three dimensions. An underspecified user 
 
 **3. One user = one role = one role record.**
 
-- **Violation:** A user has two role records (e.g., both a rider profile and a driver profile) in the role-specific tables.
+- **Violation:** A user has two role records in different role-specific tables.
 - **Cost:** Authorization is ambiguous. Role guards that read "the user's role" get an inconsistent result depending on which record is found first. Access policies apply the wrong scope.
 
 **4. User movement between tenants uses Delete & Recreate — no direct transfer.**
 
 - **Violation:** A service updates `users.tenant_id` to move a user to a different tenant.
-- **Cost:** All historical data (bookings, transactions, activity logs) associated with the user remains linked to the old tenant's data. The user's identity in the new tenant carries the old tenant's data. Cross-tenant data leakage is permanent until a complex data migration resolves it.
+- **Cost:** All historical data (domain resources, transactions, activity logs) associated with the user remains linked to the old tenant's data. The user's identity in the new tenant carries the old tenant's data. Cross-tenant data leakage is permanent until a complex data migration resolves it.
 
 **5. Owner creation via the API is prohibited — returns 403.**
 

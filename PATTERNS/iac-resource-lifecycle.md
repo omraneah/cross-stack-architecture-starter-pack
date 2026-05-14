@@ -54,26 +54,7 @@ resource "aws_db_instance" "primary" {
 # After import: verify `terraform plan` shows no changes before merging
 ```
 
-```hcl
-# [PATTERN] Crown-jewel auth service (user pool) — same pattern
-resource "aws_cognito_user_pool" "auth" {
-  name = "production-user-pool"
-
-  # Only safe, non-replacing attributes managed here
-  tags = {
-    Environment = var.env
-    CrownJewel  = "true"
-  }
-
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes  = [
-      schema,              # schema changes require pool recreation
-      password_policy,     # changing this forces recreation on some providers
-    ]
-  }
-}
-```
+The same crown-jewel pattern applies to other data- or auth-critical resources (e.g., the authentication service / identity pool): manual create, `import` into IaC state, `prevent_destroy`, `ignore_changes` covers any replacing attributes.
 
 ---
 

@@ -154,13 +154,13 @@ export class PaymentController { ... }
 ```typescript
 // WRONG
 const BASE_URL = 'http://localhost:3000';
-const response = await request(app).get('/bookings');
+const response = await request(app).get('/resources');
 ```
 **Correction:**
 ```typescript
 // CORRECT
 const BASE_URL = 'http://localhost:3000/api/v1';
-const response = await request(app).get(`${BASE_URL}/bookings`);
+const response = await request(app).get(`${BASE_URL}/resources`);
 ```
 
 ---
@@ -181,6 +181,6 @@ const apiClient = createClient({ baseURL: 'https://api.example.com/api/v1' });
 **Violation 5:** Dual support (versioned + unversioned) added with no removal plan.
 ```typescript
 // WRONG — controller supports both, no documented migration end date
-@Controller({ path: 'trips', version: ['1', VERSION_NEUTRAL] })
+@Controller({ path: 'resources', version: ['1', VERSION_NEUTRAL] })
 ```
 **Correction:** Dual support is valid during a documented migration window. The `VERSION_NEUTRAL` (unversioned) side must have a tracked removal date and a traffic monitoring check. The comment in the code should name the migration ticket and target removal date.

@@ -223,8 +223,7 @@ export class ResourceService {
       resourceName: entity.resourceName,
       isActive: entity.isActive,
       createdAt: entity.createdAt,
-      // [CONSTRAINT] tenantId may or may not be exposed — depends on the API contract
-      // See CLARIFICATION-NEEDED.md for the tenantId exposure question
+      // [CONSTRAINT] tenantId is exposed only when the API contract requires it
     };
   }
 }

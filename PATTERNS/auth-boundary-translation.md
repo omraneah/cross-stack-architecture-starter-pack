@@ -1,13 +1,7 @@
 # Pattern: Auth Boundary Translation
 
-**Stack:** NestJS (TypeScript) with external authentication provider (e.g., Cognito, Auth0, Firebase Auth)
+**Stack:** TypeScript / DI-based backend framework with external authentication provider
 **ARD Source:** `auth-boundaries.md`
-
----
-
-## Overview
-
-This pattern implements the translation boundary between the external authentication provider and the internal identity model. It is the canonical structure for isolating the provider from all business code.
 
 ---
 
@@ -44,7 +38,7 @@ export interface ProviderTokenClaims {
 @Injectable()
 export class AuthProviderWrapper {
   private readonly client: ProviderSdk;
-  
+
   constructor(private readonly config: AuthConfig) {
     // SDK initialized once in the wrapper — no other class instantiates it
     this.client = new ProviderSdk(config.providerConfig);
@@ -55,7 +49,7 @@ export class AuthProviderWrapper {
     try {
       // Provider-specific verification logic — contained here
       const decoded = await this.client.verifyJwt(token);
-      
+
       // [TRANSLATION] Map provider-specific field names to our stable interface
       // When the provider changes, only this mapping changes
       return {
@@ -68,13 +62,13 @@ export class AuthProviderWrapper {
       throw new UnauthorizedException('Invalid token');
     }
   }
-  
+
   // Additional provider operations (create user, delete user) also live here
   async createProviderUser(email: string, temporaryPassword: string): Promise<string> {
     const result = await this.client.createUser({ email, temporaryPassword });
     return result.providerUserId;  // returned only for immediate translation
   }
-  
+
   async deleteProviderUser(providerUserId: string): Promise<void> {
     await this.client.deleteUser(providerUserId);
   }
@@ -136,31 +130,31 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    
+
     const token = this.extractBearerToken(request);
     if (!token) throw new UnauthorizedException('No token provided');
-    
+
     // [STEP 1] Verify with provider wrapper — provider SDK NOT called directly
     const claims = await this.authProviderWrapper.verifyToken(token);
-    
+
     // [STEP 2] Translate: provider ID → internal userId
     // [CONSTRAINT] providerUserId used ONLY here — never passed further
     const userId = await this.userRepository.findUserIdByProviderUserId(
       claims.providerUserId,
     );
     if (!userId) throw new UnauthorizedException('User not found');
-    
+
     // [STEP 3] Load full user from DB using internal userId
     const user = await this.userRepository.findById(userId);
     if (!user || !user.isActive) throw new UnauthorizedException('User inactive');
-    
+
     // [STEP 4] Attach to request — downstream only sees user.id (internal)
     request.user = user;
     // [CONSTRAINT] claims.providerUserId is dropped here — never attached to request
-    
+
     return true;
   }
-  
+
   private extractBearerToken(request: Request): string | null {
     const authHeader = request.headers['authorization'];
     if (!authHeader?.startsWith('Bearer ')) return null;
@@ -185,14 +179,14 @@ export class RoleDerivationService {
   deriveRole(user: UserEntity): Role {
     // Role comes from the DB-loaded user entity's profile type
     // [ANTI-PATTERN PREVENTED] NOT: decodeToken(token).role or provider.getUserGroups(userId)
-    
+
     switch (user.profileType) {
-      case ProfileType.ADMIN:
-        return Role.ADMIN;
-      case ProfileType.DRIVER:
-        return Role.DRIVER;
-      case ProfileType.RIDER:
-        return Role.RIDER;
+      case ProfileType.ADMIN_OWNER:
+        return Role.ADMIN_OWNER;
+      case ProfileType.OPERATOR_A:
+        return Role.OPERATOR_A;
+      case ProfileType.OPERATOR_B:
+        return Role.OPERATOR_B;
       default:
         throw new Error(`Unknown profile type: ${user.profileType}`);
     }
@@ -202,7 +196,7 @@ export class RoleDerivationService {
 
 ---
 
-## User Creation Flow (Keeping Boundary During User Onboarding)
+## User Creation Flow
 
 ```typescript
 // [PATTERN] Creating a user while maintaining the auth boundary
@@ -221,7 +215,7 @@ export class UserCreationService {
       dto.email,
       dto.temporaryPassword,
     );
-    
+
     // [STEP 2] Create internal user — your internal UUID
     const user = await this.userRepository.create({
       tenantId: context.tenantId,  // from requestContext, not from DTO
@@ -229,14 +223,14 @@ export class UserCreationService {
       profileType: this.toProfileType(dto.role),
       // [CONSTRAINT] providerUserId is NOT stored here — it goes to the mapping table
     });
-    
+
     // [STEP 3] Store the provider ID → internal userId mapping
     // [CONSTRAINT] This is the ONLY table that stores providerUserId
     await this.authMappingRepository.create({
       providerUserId: providerUserId,
       userId: user.id,
     });
-    
+
     // [STEP 4] Response uses internal userId only — providerUserId is dropped
     return this.toResponseDto(user);
     // [CONSTRAINT] Response does NOT include providerUserId
@@ -259,10 +253,10 @@ async moveUserToNewTenant(
   // [STEP 1] Load current user and their auth mapping
   const user = await this.userRepository.findById(userId);
   const mapping = await this.authMappingRepository.findByUserId(userId);
-  
+
   // [STEP 2] Delete from auth provider
   await this.authProviderWrapper.deleteProviderUser(mapping.providerUserId);
-  
+
   // [STEP 3] Anonymize the existing user record
   await this.userRepository.anonymize(userId, {
     firstName: `ANONYMIZED`,
@@ -271,10 +265,10 @@ async moveUserToNewTenant(
     // [CONSTRAINT] Retain userId, tenantId for analytics/audit traceability
     // [CONSTRAINT] Do NOT update tenantId — it remains as the old tenant for history
   });
-  
+
   // [STEP 4] Delete the auth mapping (it referenced the old provider identity)
   await this.authMappingRepository.delete(mapping.id);
-  
+
   // [STEP 5] Create a fresh user in the new tenant (triggers full creation flow)
   // This creates a new provider identity, new userId, new mapping
   await this.createUser(
@@ -290,12 +284,12 @@ async moveUserToNewTenant(
 
 ```typescript
 // [ANTI-PATTERN 1] Provider SDK in a business module
-import { ProviderSdk } from 'provider-sdk'; // in booking.service.ts
+import { ProviderSdk } from 'provider-sdk'; // in resource.service.ts
 // → VIOLATION: provider must be isolated to the wrapper
 
 // [ANTI-PATTERN 2] providerUserId in a business entity
-@Column({ name: 'cognito_sub' })
-cognitoSub: string; // in booking.entity.ts
+@Column({ name: 'provider_user_id' })
+providerUserId: string; // in resource.entity.ts
 // → VIOLATION: provider ID must live only in the auth mapping table
 
 // [ANTI-PATTERN 3] Role from JWT claims

@@ -9,11 +9,11 @@
 
 ```typescript
 // VIOLATION 1: Controller with no versioning at all
-@Controller('bookings')
-export class BookingController {
+@Controller('resources')
+export class ResourceController {
   @Get()
-  getBookings() { ... }
-  // Exposes: GET /bookings (unversioned — no stable contract)
+  list() { ... }
+  // Exposes: GET /resources (unversioned — no stable contract)
 }
 
 // VIOLATION 2: Controller with VERSION_NEUTRAL as the only version (permanent state)
@@ -37,13 +37,13 @@ const apiClient = new ApiClient({
 // All calls go to unversioned routes — will break when unversioned routes are removed
 
 // VIOLATION 5: Breaking change applied in-place to existing version
-// v1 BookingResponseDto — BEFORE
-export class BookingResponseDto {
+// v1 ResourceResponseDto — BEFORE
+export class ResourceResponseDto {
   id: string;
   amount: number;       // existing field
 }
-// v1 BookingResponseDto — AFTER (breaking change in place)
-export class BookingResponseDto {
+// v1 ResourceResponseDto — AFTER (breaking change in place)
+export class ResourceResponseDto {
   id: string;
   totalAmount: number;  // ← renamed from 'amount' — breaks all v1 clients
 }
@@ -53,19 +53,19 @@ export class BookingResponseDto {
 
 ## Why an Agent Gravitates Toward It
 
-1. **Controller creation follows the simplest decorator pattern.** `@Controller('bookings')` is the simplest form. Adding `version` requires knowing the current version and the versioning pattern.
+1. **Controller creation follows the simplest decorator pattern.** `@Controller('resources')` is the simplest form. Adding `version` requires knowing the current version and the versioning pattern.
 
 2. **Version is an afterthought.** An agent generates the controller, routes, and DTOs — then is told to "add versioning." The version is appended but the dual-support state (`VERSION_NEUTRAL`) is never cleaned up.
 
 3. **In-place modification is simpler than creating a new version.** Renaming a field in an existing DTO is 1 line. Creating a v2 endpoint, a v2 DTO, updating documentation, and adding a deprecation plan is 50+ lines.
 
-4. **Legacy code may show unversioned patterns.** The codebase has unversioned routes for historical reasons. An agent generating new code may follow the existing pattern.
+4. **Legacy code may show unversioned patterns.** The codebase may have unversioned routes for historical reasons. An agent generating new code may follow the existing pattern.
 
 ---
 
 ## What It Breaks
 
-**No migration path for breaking changes.** Without versioning, changing a field name or removing a field breaks all clients simultaneously on deployment. There is no grace period. Mobile apps cannot be rolled back from the app store.
+**No migration path for breaking changes.** Without versioning, changing a field name or removing a field breaks all clients simultaneously on deployment. There is no grace period. Client applications cannot be rolled back instantly.
 
 **No testable contract.** When tests use unversioned URLs, the versioned API has no automated test coverage. A breaking change to the versioned API may not be caught by the test suite.
 
@@ -80,48 +80,48 @@ export class BookingResponseDto {
 ```typescript
 // CORRECT: Controller with explicit versioning from the start
 
-@Controller({ path: 'bookings', version: '1' })
-export class BookingV1Controller {
+@Controller({ path: 'resources', version: '1' })
+export class ResourceV1Controller {
   @Get()
-  getBookings() { ... }
-  // Exposes: GET /api/v1/bookings — versioned, stable contract ✓
+  list() { ... }
+  // Exposes: GET /api/v1/resources — versioned, stable contract
 }
 
 // CORRECT: Breaking change handled with a new version
 // v1 DTO — unchanged (existing clients continue to work)
-export class BookingV1ResponseDto {
+export class ResourceV1ResponseDto {
   id: string;
-  amount: number;  // ← unchanged
+  amount: number;
 }
 
 // v2 DTO — new version for the renamed field
-export class BookingV2ResponseDto {
+export class ResourceV2ResponseDto {
   id: string;
   totalAmount: number;  // ← renamed field in new version only
 }
 
 // v2 controller — new version alongside v1
-@Controller({ path: 'bookings', version: '2' })
-export class BookingV2Controller {
+@Controller({ path: 'resources', version: '2' })
+export class ResourceV2Controller {
   @Get()
-  getBookings() { ... }
-  // Exposes: GET /api/v2/bookings — new contract ✓
+  list() { ... }
+  // Exposes: GET /api/v2/resources — new contract
 }
 
 // CORRECT: Test uses versioned URL
 const response = await request(app)
-  .get('/api/v1/bookings')       // ← versioned ✓
+  .get('/api/v1/resources')      // ← versioned
   .set('Authorization', `Bearer ${token}`);
 
 // CORRECT: Client SDK with versioned base URL
 const apiClient = new ApiClient({
-  baseURL: 'https://api.example.com/api/v1',  // ← version segment ✓
+  baseURL: 'https://api.example.com/api/v1',  // ← version segment
 });
 
 // CORRECT: Dual support during migration (temporary, with a removal plan)
-@Controller({ path: 'trips', version: ['1', VERSION_NEUTRAL] })
-// ^ VERSION_NEUTRAL support has a defined removal date tracked in ISSUE-456
-// Remove VERSION_NEUTRAL when all clients confirmed on v1 (target: 2026-06-01)
+@Controller({ path: 'resources', version: ['1', VERSION_NEUTRAL] })
+// ^ VERSION_NEUTRAL support has a defined removal date tracked in a deprecation issue
+// Remove VERSION_NEUTRAL when all clients confirmed on v1
 ```
 
 ---

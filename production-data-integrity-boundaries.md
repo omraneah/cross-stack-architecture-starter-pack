@@ -190,4 +190,6 @@ Operations should never absorb avoidable friction from engineering decisions.
 
 ---
 
-**This document is the authoritative source of truth for production data integrity and migration rules across all projects.**
+## Governance
+
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

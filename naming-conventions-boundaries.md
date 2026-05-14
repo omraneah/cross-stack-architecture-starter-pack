@@ -99,33 +99,6 @@ Violations of the following rules are **architectural defects** and must be reje
 
 ---
 
-## Ownership & Change Policy
+## Governance
 
-**This document is owned by the CTO.**
-
-- Naming invariants are **non-negotiable** for new code.
-- Migration of existing code is planned and executed in project-level specs; this document defines the target state.
-- Boundary changes require **explicit CTO approval**.
-
----
-
-## Quick Reference
-
-### DO
-
-- Use camelCase for variables, properties, parameters, and API payloads in application code and versioned APIs.
-- Use PascalCase for types, classes, enums.
-- Use kebab-case (TypeScript-based) or snake_case (Dart-based) for file names per project.
-- Use snake_case for database columns and persisted data; map at the entity/repository boundary.
-- Migrate legacy divergence (snake_case in application code, transformation layers) according to the agreed plan; do not extend it.
-
-### DON'T
-
-- Introduce new application code or API contracts in snake_case.
-- Add new request/response key conversion for versioned APIs.
-- Use legacy file names or type shapes that violate this boundary as the template for new code.
-- Persist data using camelCase column names in new schema.
-
----
-
-**This document is the authoritative source of truth for naming conventions across backend, admin, and mobile applications.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

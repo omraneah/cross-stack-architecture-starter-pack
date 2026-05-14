@@ -140,6 +140,6 @@ Aligned with widely agreed engineering practice: meaningful names, small units, 
 
 ---
 
-## Ownership
+## Governance
 
-CTO-owned. Non-negotiable. Updates to governing practices are made only by the CTO to keep them consistent and up to date.
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

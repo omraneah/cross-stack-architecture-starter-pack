@@ -268,49 +268,6 @@ External Auth Provider
 
 ---
 
-## Common Pitfalls to Avoid
+## Governance
 
-- **Provider identifiers in domain tables** — creates coupling that blocks provider migration; use `userId` instead
-- **Roles derived from provider claims or provider-side groups** — roles must come from the database; provider-side group management duplicates authority and diverges
-- **Provider SDK referenced in business modules** — the translation boundary exists to prevent this; any provider reference outside auth zones is a defect
-- **Mixed authentication and authorization concerns** — keep them separate; complex combined logic is a code smell
-
----
-
-## Ownership & Change Policy
-
-**This document is owned by the CTO**
-
-- Architectural invariants are **non-negotiable**
-- Teams may propose implementation changes
-- Boundary changes require **explicit CTO approval**
-- Only the CTO may modify this document
-
----
-
-## Quick Reference
-
-### DO
-
-- Use `userId` in all business logic
-- Isolate provider logic in auth boundary zones
-- Translate provider IDs at the edge
-- Treat auth provider as replaceable
-- Derive roles from database (profile type → role mapping)
-- Enforce RBAC on every API that accesses business, tenant, or user-scoped data
-- Keep authorization simple (simple RBAC, no over-engineering)
-- Load user context from database
-
-### DON'T
-
-- Use provider IDs in business modules
-- Expose provider IDs to client applications
-- Store provider IDs outside auth boundary
-- Couple domain logic to auth provider
-- Derive roles from provider claims or provider-side groups
-- Over-engineer authorization (no ABAC, no ACL, no policy engines)
-- Mix authentication and authorization concerns
-
----
-
-**This document is the authoritative source of truth for authentication and identity provider boundaries across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

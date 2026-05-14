@@ -104,35 +104,6 @@ Violations of the following rules are **architectural defects** and must be reje
 
 ---
 
-## Ownership & Change Policy
+## Governance
 
-**This document is owned by the CTO.**
-
-- Architectural invariants are **non-negotiable**.
-- Implementation details (framework-specific routing, migration phases, rollout order) are defined in project-level specs.
-- Boundary changes require **explicit CTO approval**.
-
----
-
-## Quick Reference
-
-### DO
-
-- Use versioned routing for all public API controllers.
-- Express version in the URI path (e.g. `/api/v1/...`).
-- Introduce a new version for breaking changes.
-- Use versioned base URL in clients and in E2E/integration tests.
-- Follow a defined deprecation path before removing a version or unversioned support.
-- Monitor usage before removing deprecated paths.
-
-### DON'T
-
-- Expose only unversioned routes as the long-term API surface.
-- Make breaking changes in-place to an existing version.
-- Use unversioned base URL in production clients after the migration grace period.
-- Remove a version or unversioned support without deprecation path and usage verification.
-- Let documentation or tests canonicalise unversioned paths once versioning is enforced.
-
----
-
-**This document is the authoritative source of truth for API versioning and contract boundaries across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

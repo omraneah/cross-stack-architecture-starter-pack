@@ -103,7 +103,7 @@ Class names:        PascalCase
 Method/property:    camelCase
 DB column names:    snake_case (in migration and entity @Column({ name: ... }))
 API payload props:  camelCase
-Event names:        domain.entity.action (e.g., booking.confirmed, user.created)
+Event names:        domain.entity.action (e.g., resource.created, account.registered)
 ```
 
 ---

@@ -76,6 +76,6 @@ All other infrastructure (compute, load balancers, bastion hosts, security group
 
 ---
 
-**This document is updated when the list of crown-jewel resources or the tenant-resource policy changes.**
+## Governance
 
-**This document is the authoritative source of truth for infrastructure lifecycle and IaC boundaries across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

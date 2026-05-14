@@ -8,46 +8,46 @@
 ## What It Looks Like
 
 ```typescript
-// VIOLATION 1: Service in BookingModule injects service from TripModule
-// booking.service.ts (in BookingModule)
+// VIOLATION 1: Service in ModuleA injects service from ModuleB
+// module-a.service.ts (in ModuleA)
 @Injectable()
-export class BookingService {
+export class ModuleAService {
   constructor(
-    private readonly bookingRepository: BookingRepository,
-    private readonly tripService: TripService,  // ← injected from TripModule
+    private readonly moduleARepository: ModuleARepository,
+    private readonly moduleBService: ModuleBService,  // ← injected from ModuleB
   ) {}
 
-  async createBooking(dto: CreateBookingDto) {
+  async doWork(dto: InputDto) {
     // Direct synchronous call into another module's domain service
-    const trip = await this.tripService.findById(dto.tripId);  // ← VIOLATION
+    const upstream = await this.moduleBService.findById(dto.upstreamId);  // ← VIOLATION
     // ...
   }
 }
 
 // VIOLATION 2: Module imports another domain module's service
-// booking.module.ts
+// module-a.module.ts
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BookingEntity]),
-    TripModule,          // ← importing a domain module for its services
+    TypeOrmModule.forFeature([ModuleAEntity]),
+    ModuleB,             // ← importing a domain module for its services
   ],
-  providers: [BookingService],
+  providers: [ModuleAService],
 })
-export class BookingModule {}
+export class ModuleA {}
 
 // VIOLATION 3: Creating a circular dependency
-// trip.module.ts imports BookingModule
-// booking.module.ts imports TripModule
+// module-b.module.ts imports ModuleA
+// module-a.module.ts imports ModuleB
 // → Application crashes on startup with a circular dependency error
 
 // VIOLATION 4: Using emitAsync as a synchronous RPC (disguised cross-module injection)
-// vehicle.service.ts (VehicleModule)
-async hasActiveTrips(vehicleId: string): Promise<boolean> {
-  const [activeTrips] = await this.eventEmitter.emitAsync(
-    'trip.get-active-trips-by-vehicle-id',
-    vehicleId,
+// module-a.service.ts (ModuleA)
+async checkUpstreamState(inputId: string): Promise<boolean> {
+  const [state] = await this.eventEmitter.emitAsync(
+    'module-b.query-state-for-module-a',
+    inputId,
   );
-  return activeTrips && activeTrips.length > 0;  // ← awaiting result = synchronous RPC
+  return state && state.length > 0;  // ← awaiting result = synchronous RPC
 }
 ```
 
@@ -55,23 +55,23 @@ async hasActiveTrips(vehicleId: string): Promise<boolean> {
 
 ## Why an Agent Gravitates Toward It
 
-1. **DI is the natural pattern within a module.** An agent that knows NestJS will default to injecting services. The architectural boundary between modules is not enforced by the framework — it must be enforced by convention and review.
+1. **DI is the natural pattern within a module.** An agent that knows the framework will default to injecting services. The architectural boundary between modules is not enforced by the framework — it must be enforced by convention and review.
 
-2. **It's faster to implement.** A direct call to `tripService.findById()` takes 2 lines. Setting up an event, a handler, and an idempotent subscriber takes 30+ lines. The agent optimizes for brevity.
+2. **It's faster to implement.** A direct call takes 2 lines. Setting up an event, a handler, and an idempotent subscriber takes 30+ lines. The agent optimizes for brevity.
 
-3. **The call chain is clear and debuggable.** `bookingService → tripService → tripRepository` is easy to trace. Event-driven communication requires following emitter → handler chains.
+3. **The call chain is clear and debuggable.** Direct service chains are easy to trace. Event-driven communication requires following emitter → handler chains.
 
-4. **Framework may not prevent it.** NestJS will happily allow cross-module imports of domain services. The framework enforces circular dependency detection, but not the "no cross-module domain service injection" rule.
+4. **Framework may not prevent it.** Many DI frameworks happily allow cross-module imports of domain services. They enforce circular dependency detection, but not the "no cross-module domain service injection" rule.
 
 ---
 
 ## What It Breaks
 
-**Circular dependencies cause startup failure.** If A imports B and B imports A, the NestJS DI container cannot resolve initialization order. The application crashes at startup with a non-obvious error pointing at the DI container, not at the problematic import.
+**Circular dependencies cause startup failure.** If A imports B and B imports A, the DI container cannot resolve initialization order. The application crashes at startup with a non-obvious error pointing at the DI container, not at the problematic import.
 
-**Testing requires the full dependency graph.** Testing `BookingService` now requires mocking `TripService`. Testing `TripService` may require mocking other modules. Unit tests become integration tests. The test setup for a single service balloons.
+**Testing requires the full dependency graph.** Testing `ModuleAService` now requires mocking `ModuleBService`. Testing `ModuleBService` may require mocking other modules. Unit tests become integration tests. The test setup for a single service balloons.
 
-**Independent evolution is blocked.** Any change to `TripService`'s constructor, interface, or behavior requires checking `BookingService`. With 5+ cross-module dependencies, a service change triggers a review of every dependent module.
+**Independent evolution is blocked.** Any change to `ModuleBService`'s constructor, interface, or behavior requires checking `ModuleAService`. With 5+ cross-module dependencies, a service change triggers a review of every dependent module.
 
 **Refactoring creates cascading changes.** Extracting a module, renaming a service, or splitting a module into two requires updating every module that imports it. What should be a local change becomes a multi-file PR.
 
@@ -82,51 +82,50 @@ async hasActiveTrips(vehicleId: string): Promise<boolean> {
 ```typescript
 // CORRECT: Event-driven communication — no direct injection
 
-// TripModule emits events when trip data changes:
-// trip.service.ts (TripModule)
+// ModuleB emits events when its state changes:
+// module-b.service.ts (ModuleB)
 @Injectable()
-export class TripService {
+export class ModuleBService {
   constructor(
-    private readonly tripRepository: TripRepository,
+    private readonly moduleBRepository: ModuleBRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async updateTripStatus(tripId: string, status: TripStatus) {
-    await this.tripRepository.updateStatus(tripId, status);
-    
-    // Emit event — BookingModule subscribes if it needs to react
-    this.eventEmitter.emit('trip.status.updated', {
-      tripId,
+  async updateState(entityId: string, status: EntityStatus) {
+    await this.moduleBRepository.updateStatus(entityId, status);
+
+    // Emit event — ModuleA subscribes if it needs to react
+    this.eventEmitter.emit('entity.status.updated', {
+      entityId,
       status,
-      tenantId: trip.tenantId,
+      tenantId: entity.tenantId,
       updatedAt: new Date(),
     });
   }
 }
 
-// BookingModule subscribes to trip events:
-// booking-trip.handler.ts (BookingModule)
+// ModuleA subscribes to ModuleB's events:
+// module-a-entity.handler.ts (ModuleA)
 @Injectable()
-export class BookingTripHandler {
-  constructor(private readonly bookingRepository: BookingRepository) {}
-  // ← NO TripService injected here
+export class ModuleAEntityHandler {
+  constructor(private readonly moduleARepository: ModuleARepository) {}
+  // ← NO ModuleBService injected here
 
-  @OnEvent('trip.status.updated')
-  async handleTripStatusUpdated(event: TripStatusUpdatedEvent) {
-    // React to the event using payload data — no callback to TripModule
-    if (event.status === TripStatus.CANCELLED) {
-      await this.bookingRepository.markTripBookingsCancelled(event.tripId);
+  @OnEvent('entity.status.updated')
+  async handleEntityStatusUpdated(event: EntityStatusUpdatedEvent) {
+    // React to the event using payload data — no callback to ModuleB
+    if (event.status === EntityStatus.CANCELLED) {
+      await this.moduleARepository.markRelatedRecordsCancelled(event.entityId);
     }
   }
 }
 
 // For synchronous READ needs (not domain service calls):
-// If BookingService must verify a trip exists before creating a booking:
-// OPTION A: BookingModule maintains its own lightweight trip read model
-//           (populated via trip.created / trip.updated events)
-// OPTION B: The trip ID is validated at the request boundary (DTO validation)
-//           and the booking is created assuming the trip is valid
-//           (the event handler handles the case where the trip is cancelled)
+// OPTION A: ModuleA maintains its own lightweight read model
+//           (populated via entity.created / entity.updated events)
+// OPTION B: The upstream ID is validated at the request boundary (DTO validation)
+//           and the operation proceeds assuming the upstream is valid
+//           (the event handler handles the case where the upstream is cancelled)
 ```
 
 ---

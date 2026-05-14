@@ -162,37 +162,6 @@ Violations of the following rules are **architectural defects** and must be reje
 
 ---
 
-## Ownership & Change Policy
+## Governance
 
-**This document is owned by the CTO**
-
-- Architectural invariants are **non-negotiable**
-- Teams may propose implementation changes
-- Boundary changes require **explicit CTO approval**
-- Only the CTO may modify this document
-
----
-
-## Quick Reference
-
-### DO
-
-- Enforce all quality checks through automation
-- Align pre-commit hooks with CI workflows
-- Block merges on security vulnerabilities (high/critical)
-- Block merges on failing tests
-- Block merges on linting/formatting failures
-- Use system-level gates for long-term health
-
-### DON'T
-
-- Merge PRs with failing checks
-- Bypass pre-commit hooks
-- Disable or weaken CI gates
-- Accept security vulnerabilities silently
-- Rely on manual review for quality enforcement
-- Have different checks in pre-commit vs CI
-
----
-
-**This document is the authoritative source of truth for quality and security enforcement boundaries across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

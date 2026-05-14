@@ -198,49 +198,6 @@ Violations of the following rules are **architectural defects** and must be reje
 
 ---
 
-## Common Pitfalls to Avoid
+## Governance
 
-- **Circular module dependencies** — often introduced by injecting cross-module Services directly; use events instead
-- **Hidden event subscriptions** — event handlers buried in decorators or auto-discovered without module-level visibility make the system impossible to trace
-- **Fat event payloads that omit critical data** — subscribers must not be forced to call back into the source module; payloads must be self-contained
-- **Interfaces for single implementations** — adds indirection without benefit; use direct class injection so IDEs can navigate to the definition
-
----
-
-## Ownership & Change Policy
-
-**This document is owned by the CTO**
-
-- Architectural invariants are **non-negotiable**
-- Teams may propose implementation changes
-- Boundary changes require **explicit CTO approval**
-- Circular dependencies require **CTO validation and explicit documentation**
-- Only the CTO may modify these rules
-
----
-
-## Quick Reference
-
-### DO
-
-- Use **async event-driven patterns** for cross-module domain communication
-- Use **pub/sub with no coupling** — publishers don't know subscribers, subscribers don't know publishers
-- Register events at module level (visible, traceable)
-- Use dependency injection for infrastructure and intra-module communication
-- Document events explicitly (names, payloads, subscribers)
-- Make payloads complete (no follow-up queries needed)
-- Handle event failures gracefully (idempotent handlers)
-- Use direct class injection (not interfaces for single implementations)
-
-### DON'T
-
-- Create circular dependencies between modules
-- Use direct DI for cross-module domain Services
-- Create interfaces for single implementations
-- Hide event handlers in decorators or auto-discovery mechanisms
-- Make synchronous cross-module calls
-- Add circular dependencies without CTO approval and documentation
-
----
-
-**This document is the authoritative source of truth for module communication and dependency boundaries across all projects.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

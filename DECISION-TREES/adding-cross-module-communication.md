@@ -74,8 +74,8 @@ Option 3 (DO NOT USE): Synchronous emitAsync with return value
 Before writing any code, define the event contract:
 
 **Event name:** `domain.entity.action`
-- Examples: `booking.confirmed`, `user.created`, `trip.status.changed`
-- Not: `booking_confirmed`, `BookingConfirmed`, `onBookingConfirm`
+- Examples: `resource.created`, `account.registered`, `entity.status.updated`
+- Not: `resource_created`, `ResourceCreated`, `onResourceCreated`
 
 **Event payload:** List every field the subscriber will need.
 ```
@@ -168,7 +168,7 @@ Register the subscription explicitly:
 
 ## Special Case: Read-Only Data Sharing
 
-If Module A needs a read of a single scalar value that Module B owns (e.g., "does this vehicle have active trips?"), and refactoring to an event model is not feasible:
+If Module A needs a read of a single scalar value that Module B owns (e.g., "does this entity have related active records?"), and refactoring to an event model is not feasible:
 
 1. Document the dependency explicitly with rationale
 2. Escalate to CTO for approval of an exception

@@ -74,7 +74,7 @@ If database record creation fails: clean up the auth provider record
 ## B: Assigning or Changing a User's Role
 
 **Q: Is this a role change (not just a subtype change)?**
-- Full role change (e.g., from rider to driver) → This is effectively Delete & Recreate territory. A user has one role tied to their identity. Changing the fundamental role requires assessing cross-tenant implications.
+- Full role change (e.g., from one role type to another) → This is effectively Delete & Recreate territory. A user has one role tied to their identity. Changing the fundamental role requires assessing cross-tenant implications.
 - Subtype change within an administrative role → Go to Section C.
 
 **Q: Is the new role valid for the user's current tenant type?**

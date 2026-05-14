@@ -128,22 +128,6 @@ Violations are **architectural defects** and must be rejected in review.
 
 ---
 
-## Ownership & Change Policy
+## Governance
 
-**This document is owned by the CTO.**
-
-- Architectural invariants are non-negotiable.
-- Boundary changes require explicit CTO approval.
-- Only the CTO may modify this document.
-
----
-
-## Quick Reference
-
-**DO:** Use SSO for humans; two groups (General Engineering, Admin); roles for everyone; IaC for roles and policies; secure session tool and roles for bastion/compute/database; platform secrets service inside the cloud; OIDC and deployment automation for external CI/CD; contain manual management.
-
-**DON'T:** Create long-lived user accounts or user groups for engineers; use long-lived keys for humans or internal CI; use SSH keys or long-lived credentials as the primary path for human access; link SSO users to bastion/database access via a user group; share cloud-internal secrets outside the cloud environment; expand manual management without documenting and containing it.
-
----
-
-**This document is the authoritative source of truth for IAM and cloud platform access control boundaries across the organisation.**
+Ownership, authority, and exception policy: see [`./GOVERNANCE.md`](./GOVERNANCE.md).

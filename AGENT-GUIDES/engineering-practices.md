@@ -182,8 +182,8 @@ try {
 
 **Violation 5:** Duplicated enum across backend and mobile app.
 ```typescript
-// WRONG — BookingStatus defined in backend AND mobile app types
-// Backend: enum BookingStatus { PENDING, CONFIRMED, CANCELLED }
-// Mobile:  enum BookingStatus { pending, confirmed, cancelled }
+// WRONG — EntityStatus defined in backend AND mobile app types
+// Backend: enum EntityStatus { PENDING, CONFIRMED, CANCELLED }
+// Mobile:  enum EntityStatus { pending, confirmed, cancelled }
 ```
 **Correction:** The backend is the source of truth. Mobile app types are derived from the API contract (e.g., generated from OpenAPI schema). One definition, one place.
