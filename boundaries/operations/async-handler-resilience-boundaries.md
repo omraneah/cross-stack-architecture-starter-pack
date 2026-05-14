@@ -44,13 +44,13 @@
 
 ## Minimum viable shape
 
-```
-Event → carries idempotency key + correlation ID + complete payload
-Handler entry → check idempotency key; skip if already processed
-Handler work → wrapped in error boundary
-On error → log + emit to tracker + route to retry queue with attempt counter
-Retry budget exceeded → route to dead-letter queue → trigger operator alert
-Every invocation → metric (invoked, completed, failed) + duration histogram
-```
+The shape is a linear flow per event:
+
+1. **Event payload** carries an idempotency key, a correlation ID, and a complete payload.
+2. **Handler entry** checks the idempotency key; if already processed, log and return.
+3. **Handler work** runs inside an error boundary; nothing escapes back to the publisher.
+4. **On error** — log with correlation context, emit to the tracker, route to the retry queue with an attempt counter.
+5. **Retry budget exhausted** — route to the dead-letter queue and trigger an operator alert.
+6. **Every invocation** emits a metric (invoked, completed, failed) plus a duration histogram.
 
 **Severity floor if violated:** P1 — silent handler failures and infinite retries decouple cause from effect. P0 if the handler mutates money or settles billable state (idempotency gap = double-charge surface). May step down by one tier for fire-and-forget notifications where re-processing is harmless.

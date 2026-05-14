@@ -37,15 +37,15 @@
 
 ## Minimum viable shape
 
-```
-Request enters the system (HTTP, queue worker, scheduled job, CLI — same shape)
-  → Auth boundary (the only place the provider SDK runs)
-  → Translate provider ID → internal userId
-  → Load user from database
-  → Derive role from database (never from claims)
-  → Attach (userId, tenantId, role) to request context
-  → Business logic sees only the context
-```
+The shape is a linear flow:
+
+1. **Request enters the system** — HTTP, queue worker, scheduled job, CLI; same shape across transports.
+2. **Auth boundary handles the request** — the only place the provider SDK runs.
+3. **Provider ID → internal `userId`** via the mapping layer.
+4. **Load the user record** from the database.
+5. **Derive the role** from the database; never from claims.
+6. **Attach `(userId, tenantId, role)`** to the request context.
+7. **Business logic sees only the context.**
 
 A worked example of this shape applied to a TypeScript backend lives in `examples/auth-boundary-applied.md`.
 

@@ -54,13 +54,13 @@
 
 ## Minimum viable shape
 
-```
-Before code → compare approach to boundaries
-On a bug → find the root cause; fix the contract, not the call site
-On a change → small, reviewable, single concern
-On an abstraction → only when there is more than one concrete implementation
-On business rules → one canonical place; clients don't duplicate
-On tests → cover the behaviour that matters; fix flaky tests
-```
+Six decision rules, one per situation that recurs:
+
+- **Before code:** compare the approach to the relevant boundaries; escalate violations before building on them.
+- **On a bug:** fix the root cause — the contract that allowed the failure — not the call site.
+- **On a change:** small, reviewable, single concern.
+- **On an abstraction:** only when there is more than one concrete implementation; no speculative interfaces.
+- **On business rules:** one canonical place; clients render and validate UX but don't own the rules.
+- **On tests:** cover the behaviour that matters; fix flaky tests or quarantine with a tracked plan.
 
 **Severity floor if violated:** P2 by default — discipline drift in code shape and PR sizing. Steps up to P1 if bus-tomorrow tests don't exist (single-engineer ownership of revenue-bearing modules with no test scaffolding). P0 only when compounded with a missing testing or quality-security floor on the same path.

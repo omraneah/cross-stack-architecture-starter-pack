@@ -46,10 +46,10 @@
 
 ## Minimum viable shape
 
-```
-Module A → owns entities X, Y → declared explicitly in module file
-Writes to X, Y → only by Module A's service
-Module B needs to read X → subscribe to events from A OR call A's read API
-Module B needs to change X → emit an event or call A's write API
-Migrations to X → live in Module A's migrations
-```
+Five independent rules per ownership surface:
+
+- **Ownership:** Module A owns entities X and Y; declared explicitly in its module file.
+- **Writes to X, Y:** only by Module A's service; cross-module writes forbidden.
+- **Cross-module read:** subscribe to A's events for a local read model, or call A's read API.
+- **Cross-module change:** emit an event or call A's write API; A's service performs the write.
+- **Migrations:** schema changes touching X or Y live in Module A's migration set.

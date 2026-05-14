@@ -45,13 +45,13 @@
 
 ## Minimum viable shape
 
-```
-User → has → at least one Tenant (non-null)
-User → has → one or more Roles (from backend, never from claims)
-Tenant → has → type → determines which roles are valid here
-Critical-tier admin → cannot be deleted via the application
-Role transitions → either in-place + audit log OR delete-and-recreate; document which and why
-Every authorization decision → backend-derived role, not auth claims
-```
+The relationships and rules the model has to satisfy:
+
+- **User → Tenant:** every user belongs to at least one tenant (non-null).
+- **User → Role:** every user carries one or more roles, sourced from the application database, never from claims.
+- **Tenant → Type:** the tenant type determines which roles are valid inside it.
+- **Critical-tier admin:** cannot be deleted via the application path; created and destroyed out-of-band.
+- **Role transitions:** either in-place + audit log, or delete-and-recreate; document which and why.
+- **Every authorization decision:** uses the backend-derived role, never auth-provider claims.
 
 **Severity floor if violated:** P0 — role-from-claims or unaudited admin transitions are privilege-escalation surfaces. May step down by one tier in internal-only tools with a single admin tier and no external customers.

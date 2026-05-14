@@ -52,13 +52,13 @@
 
 ## Minimum viable shape
 
-```
-SLO definitions → one per critical user journey, instrumented, dashboard-visible
-Logs → structured, sampled by level, 100% retained for errors
-Metrics → low-cardinality labels; identifiers in logs/traces, not metrics
-Traces → ID generated at edge, propagated to every downstream call
-Errors → emitted to a tracker with service, operation, tenant tags
-Incidents → postmortem within one week, remediations into the backlog
-```
+Six independent rules across the three observability layers:
+
+- **SLOs:** one per critical user journey; instrumented, dashboard-visible.
+- **Logs:** structured, sampled by level, 100% retained for errors and warnings.
+- **Metrics:** low-cardinality labels only; identifiers (user, tenant, request) belong in logs and traces, not metric labels.
+- **Traces:** trace ID generated at the edge, propagated to every downstream call.
+- **Errors:** emitted to a tracker with service, operation, and tenant tags.
+- **Incidents:** postmortem within one week; remediations enter the architecture backlog.
 
 **Severity floor if violated:** P1 by default — gaps compound; the cost of adding instrumentation later is paid every incident. P0 for SLO-breach blindness on a revenue-bearing path. May step down by one tier in pre-revenue prototypes.

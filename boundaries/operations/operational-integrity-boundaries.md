@@ -47,13 +47,13 @@
 
 ## Minimum viable shape
 
-```
-Process startup → register unhandled-rejection + uncaught-exception handlers
-Process startup → register termination handler with drain timeout
-Every request → attach correlation ID → propagate to downstream calls
-Every log → structured + correlation ID + relevant context
-Every error → log + emit to error tracker with tags
-Health check → probes critical dependencies, returns failure when one is down
-```
+Six independent rules over the runtime surface:
+
+- **Process startup:** register unhandled-rejection + uncaught-exception handlers (log + emit to tracker).
+- **Process termination:** register a termination handler with a bounded drain timeout.
+- **Every request:** attach a correlation ID at the edge and propagate it to every downstream call.
+- **Every log line:** structured, with correlation ID and relevant context.
+- **Every error:** logged and emitted to the error tracker with searchable tags.
+- **Health check:** probes critical dependencies; returns failure when any is down.
 
 **Severity floor if violated:** P1 — degrades silently until the first real incident, then everything missing is needed at once. P0 if a customer-facing health check lies (200 OK while a critical dependency is down) and is wired into autoscaler or load-balancer routing. May step down by one tier in internal tools.
