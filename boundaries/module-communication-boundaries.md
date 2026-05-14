@@ -35,9 +35,12 @@
 
 - A service in Module A injecting a domain service from Module B.
 - Two modules importing each other directly or transitively (circular dependency).
+- A `forwardRef(() => OtherModule)` or equivalent late-binding mechanism — almost always evidence of a circular dependency, not a fix for one. The fix is to break the cycle through events; `forwardRef` only hides it.
 - An event-handler decorator with no corresponding registration in the module file.
 - An event handler whose first action is to query the publisher's repository for "the rest of the data."
 - An async-emit call whose return value is awaited and used.
+
+**Severity floor if violated:** P1 by default; P0 if the violation is dense (forwardRef in >3 modules, sync-RPC-via-events as the dominant cross-module pattern).
 
 ## Minimum viable shape
 
