@@ -12,10 +12,11 @@ The boundaries hold up to around Series A. Past that, the shape of the company c
 
 ## What this is
 
-- **14 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape.
+- **15 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape.
 - **A doctrine** (`DOCTRINE.md`). One operator's choices, anonymized. Reference, not requirement.
-- **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one.
-- **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What to land first when starting from zero.
+- **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one. Includes an output template and a sample audit run.
+- **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What depends on what when starting from zero.
+- **Worked examples** in `examples/`. One boundary applied to a concrete (illustrative) stack to show what "right shape" looks like in code.
 
 ## What this is NOT
 
@@ -45,7 +46,7 @@ These are areas the author hasn't operated long enough at depth to write boundar
 4. `DOCTRINE.md` — one operator's choices. Reference.
 5. `BOOTSTRAP-DECISIONS.md` — a decision tree for greenfield projects.
 
-## The 14 boundaries (by theme)
+## The 15 boundaries (by theme)
 
 **Identity, access, authority**
 - `boundaries/auth-boundaries.md`
@@ -67,6 +68,7 @@ These are areas the author hasn't operated long enough at depth to write boundar
 - `boundaries/infrastructure-as-code-boundaries.md`
 - `boundaries/production-data-integrity-boundaries.md`
 - `boundaries/operational-integrity-boundaries.md`
+- `boundaries/observability-boundaries.md`
 - `boundaries/async-handler-resilience-boundaries.md`
 
 **Discipline**

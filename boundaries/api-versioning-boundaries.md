@@ -12,8 +12,8 @@
 
 **Where the version lives:**
 
-- URI path (`/api/v1/...`). Visible in logs, monitoring, and client code. Easiest to deprecate.
-- Header (`Accept-Version` or media type). Cleaner URIs; harder to grep, harder to monitor.
+- URI path (`/api/v1/...`). Visible in logs, monitoring, and client code. Easiest to deprecate. Default for public-facing APIs and APIs consumed by independent clients.
+- Header (`Accept-Version` or media type). Wins when the API is consumed by a tightly-coupled client SDK that handles versioning transparently, when content-negotiation is central to the design (HATEOAS, hypermedia-driven), or when the surface must keep clean URIs for SEO or aesthetics. Costlier to monitor and grep, so the trade-off has to justify itself.
 - Query parameter. Discouraged — easy to forget, easy to cache wrong.
 
 **Breaking-change protocol:**

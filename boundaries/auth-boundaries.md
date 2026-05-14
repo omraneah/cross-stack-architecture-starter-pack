@@ -12,7 +12,7 @@
 
 **Internal identifier shape:**
 
-- One internal `userId` (UUID) translated once at the auth boundary, used everywhere downstream. Default for any system that may ever change providers.
+- One stable internal identifier (`userId` as UUID, ULID, or sequence-based — the shape is opaque to clients) translated once at the auth boundary, used everywhere downstream. Default for any system that may ever change providers.
 - Provider identifier as the internal ID. Acceptable only when locked to one provider permanently AND no downstream system needs to be provider-agnostic.
 
 **Role source:**
@@ -36,7 +36,7 @@
 ## Minimum viable shape
 
 ```
-HTTP request
+Request enters the system (HTTP, queue worker, scheduled job, CLI — same shape)
   → Auth boundary (the only place the provider SDK runs)
   → Translate provider ID → internal userId
   → Load user from database
@@ -44,3 +44,5 @@ HTTP request
   → Attach (userId, tenantId, role) to request context
   → Business logic sees only the context
 ```
+
+A worked example of this shape applied to a TypeScript backend lives in `examples/auth-boundary-applied.md`.
