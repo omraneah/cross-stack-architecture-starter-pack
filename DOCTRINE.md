@@ -221,6 +221,64 @@ Why: the value of a DLQ is the alert it generates. Without the alert, it's a wri
 
 ---
 
+## Testing
+
+**I install the testing framework before I ship the first feature. The first unit test exists before the first feature commit.**
+Why: the muscle is built early or it isn't built. Every team I've seen postpone testing past PMF added it later under incident pressure, slower, with less confidence.
+
+**Critical user journeys get end-to-end tests before launch. No exceptions.**
+Why: a launch event without E2E coverage is a launch event where I find out about regressions from a customer. That's a bad position to be in.
+
+**I use TDD with LLMs. The test is the spec.**
+Why: writing the test first forces me to articulate the behavior I want. The LLM optimizes against the spec, not against plausible-looking output. This is the single highest-leverage discipline change I've made for LLM-assisted development.
+
+**I test the happy path and the forbidden path. For risk-bearing operations, the forbidden test gets more attention than the happy one.**
+Why: the happy path is what the product manager checks. The forbidden path is what an attacker checks. Both ship.
+
+---
+
+## Cloud Deployment Posture
+
+**Customer-facing services go behind a load balancer from launch.**
+Why: every deploy without an LB is a customer-visible outage. Every instance failure without an LB is a customer-visible outage. The cost of one LB is dollars per month; the cost of one missed deploy window is hours of incident triage.
+
+**Single-instance production exists only as a time-boxed pre-launch state. I write the date by which it ends in the IaC repo's README.**
+Why: "we'll fix it before launch" becomes "we never fixed it." Putting the date in writing forces the conversation.
+
+**I prefer managed container services (Fargate, Cloud Run) over self-managed clusters at this stage.**
+Why: a junior-heavy team or a team without a dedicated platform hire can't operate Kubernetes well. Managed services trade flexibility for operational depth — the flexibility we don't yet need.
+
+---
+
+## Secrets Management
+
+**Secrets live in the cloud's secret service. Period.**
+Why: every other location (CI environment, `.env` file, IaC variable, container `ENV`) is a future incident. The cost of doing this right from day one is one IAM role and one secret-manager resource.
+
+**CI gets cloud credentials via OIDC, not via long-lived keys. The day the platform supports OIDC is the day the long-lived key becomes technical debt.**
+Why: a CI compromise with OIDC scopes the blast radius to one job; with long-lived keys it scopes to indefinite cloud access. The migration cost is one engineer-day at most.
+
+**Local development secrets are fetched via SSO and short-lived credentials, never shared via chat or shared drives.**
+Why: a secret shared in Slack is in Slack's data forever. The cost of fetching from the secret service per session is a few seconds; the cost of one leaked admin secret is hours of incident response.
+
+---
+
+## Logging & Error Handling
+
+**Centralized logger + centralized error module exist before the first feature ships.**
+Why: retrofitting them after the first incident is the most expensive layer to add. Doing it on day one is one afternoon of work.
+
+**Every error in production code is a typed domain error. Never `throw new Error('some string')`.**
+Why: typed errors are mappable to API responses, to monitoring alerts, to localized client messages. String errors are debuggable only by the person who wrote them.
+
+**Logs ship to a queryable system from day one. Local-only logs are not operational signal.**
+Why: the first production incident requires log search across time and across instances. Without the shipping layer in place, that search becomes "SSH in and grep" — and the next incident the same.
+
+**Audit trails for privileged actions exist from launch in B2B / regulated contexts.**
+Why: enterprise buyers ask for audit logs in the first procurement conversation. Retrofitting an audit trail loses the history that mattered — the events from before the trail existed.
+
+---
+
 ## What this doctrine is not
 
 These are choices. Some are strong defaults I'll keep across most systems I own. Some are weighted toward the kinds of systems I've worked with most — long-lived backends, multi-tenant SaaS, mobile + web clients, modular monoliths. Different shapes (microservices, serverless-first, single-tenant, edge-only) shift the trade-offs and may shift the choices.

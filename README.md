@@ -12,11 +12,12 @@ The boundaries hold up to around Series A. Past that, the shape of the company c
 
 ## What this is
 
-- **15 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape.
+- **19 architectural boundaries** in `boundaries/`. Each is ~50 lines. Principle, why it matters, the judgment (alternatives + when each fits), signals of violation in an audited codebase, minimum viable shape, severity floor.
 - **A doctrine** (`DOCTRINE.md`). One operator's choices, anonymized. Reference, not requirement.
+- **An organizational-context document** (`ORG-CONTEXT.md`). What changes when the org isn't normal — adversarial founders, junior-only teams, no platform-engineering hire, AI-assisted development as a hiring substitute.
 - **An application protocol** (`APPLY-WITH-LLM.md`). How to use this pack — with a human or with an LLM — to audit an existing codebase or to bootstrap a new one. Includes an output template and a sample audit run.
 - **A bootstrap decision tree** (`BOOTSTRAP-DECISIONS.md`). What depends on what when starting from zero.
-- **Worked examples** in `examples/`. One boundary applied to a concrete (illustrative) stack to show what "right shape" looks like in code.
+- **Worked examples** in `examples/`. Concrete (illustrative) stacks showing what "right shape" looks like in code.
 
 ## What this is NOT
 
@@ -35,22 +36,24 @@ These are areas the author hasn't operated long enough at depth to write boundar
 - **Compliance frameworks (SOC2, HIPAA, PCI, ISO 27001).** The boundaries are compatible with these frameworks; the regulatory specifics are not in scope.
 - **Multi-region deployment and global data residency.** Single-region production assumptions thread through several boundaries.
 - **FinOps and cost engineering.** Out of scope.
-- **Native mobile (iOS / Android) specifics beyond Flutter-style cross-platform.** Mobile concerns here are framework-light.
+- **Native mobile (iOS / Android) specifics beyond cross-platform frameworks.** Mobile concerns here are framework-light.
 - **Data platform engineering at scale** (warehouse modeling, lineage, contract testing across pipelines). Basic dbt-style staging is the depth here; not data-team-grade engineering.
 
 ## Reading order
 
 1. `GOVERNANCE.md` — ownership, authority, exceptions.
 2. `APPLY-WITH-LLM.md` — the application protocol for audits and bootstraps.
-3. `boundaries/` — the 14 boundary files. Read in any order; each is self-contained.
+3. `boundaries/` — the 19 boundary files. Read in any order; each is self-contained.
 4. `DOCTRINE.md` — one operator's choices. Reference.
-5. `BOOTSTRAP-DECISIONS.md` — a decision tree for greenfield projects.
+5. `ORG-CONTEXT.md` — honest read on what changes when the org isn't normal.
+6. `BOOTSTRAP-DECISIONS.md` — a decision tree for greenfield projects.
 
-## The 15 boundaries (by theme)
+## The 19 boundaries (by theme)
 
 **Identity, access, authority**
 - `boundaries/auth-boundaries.md`
 - `boundaries/iam-and-access-control-boundaries.md`
+- `boundaries/secrets-management-boundaries.md`
 
 **Tenancy and the user model**
 - `boundaries/multi-tenancy-boundaries.md`
@@ -66,11 +69,14 @@ These are areas the author hasn't operated long enough at depth to write boundar
 
 **Production and operations**
 - `boundaries/infrastructure-as-code-boundaries.md`
+- `boundaries/cloud-deployment-posture-boundaries.md`
 - `boundaries/production-data-integrity-boundaries.md`
 - `boundaries/operational-integrity-boundaries.md`
 - `boundaries/observability-boundaries.md`
+- `boundaries/logging-and-error-handling-boundaries.md`
 - `boundaries/async-handler-resilience-boundaries.md`
 
 **Discipline**
 - `boundaries/quality-security-boundaries.md`
 - `boundaries/engineering-practices-boundaries.md`
+- `boundaries/testing-boundaries.md`
