@@ -40,13 +40,13 @@
 
 ## Minimum viable shape
 
-```
-Customer-facing service → load balancer in front (cloud-native)
-LB → at least 2 healthy targets OR an autoscaling group OR a managed container service
-Deploy → rolling or blue/green; in-flight requests drain on termination
-Security groups → least privilege; only LB exposes public ingress on app ports
-Engineer access to private resources → session manager or scoped allowlist
-Single-instance production → explicit, documented, time-boxed; reviewed monthly
-```
+Six independent rules over the deployment surface:
+
+- **Customer-facing service:** behind a load balancer (cloud-native or equivalent).
+- **Load balancer:** at least 2 healthy targets, an autoscaling group, or a managed container service.
+- **Deploy:** rolling, blue/green, or canary; in-flight requests drain on termination.
+- **Security groups:** least privilege; only the LB exposes public ingress on application ports.
+- **Engineer access to private resources:** session manager or scoped allowlist; no internet-facing SSH.
+- **Single-instance production:** explicit, documented, time-boxed; reviewed monthly.
 
 **Severity floor if violated:** P0 for a customer-facing service without LB or running single-instance with SSH-script deploy. P1 for security group misconfiguration exposing application ports publicly. P2 for missing decision record on high availability.

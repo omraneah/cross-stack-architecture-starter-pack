@@ -39,13 +39,13 @@
 
 ## Minimum viable shape
 
-```
-Auth boundary resolves tenant_id from the authenticated user
-  → Request context carries (user_id, tenant_id, role)
-  → Service calls access policy with the context
-  → Access policy returns a tenant-scoped filter
-  → Repository applies the filter to every query
-  → No layer accepts tenant_id from caller input
-```
+The shape is a linear flow:
+
+1. **Auth boundary resolves `tenant_id`** from the authenticated user's record.
+2. **Request context carries `(user_id, tenant_id, role)`** through every downstream call.
+3. **Service calls the access policy** with the context.
+4. **Access policy returns a tenant-scoped filter** based on the role.
+5. **Repository applies the filter** to every query, no exceptions.
+6. **No layer accepts `tenant_id` from caller input** — body, query, path, or header.
 
 **Severity floor if violated:** P0 — a missing tenant filter is a cross-tenant data leak, the worst failure mode in any B2B system. No step-down: once the system is multi-tenant in production, this is non-negotiable.

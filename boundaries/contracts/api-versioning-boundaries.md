@@ -39,12 +39,12 @@
 
 ## Minimum viable shape
 
-```
-Controller declares version v1 explicitly
-  → New endpoint or additive field? → stays in v1
-  → Removal, rename, type change? → new v2 controller; v1 untouched
-  → Tests, clients, docs all reference the versioned base URL
-  → Deprecation = announce → monitor traffic → remove only at zero usage
-```
+Five decisions, one per change type:
+
+- **Controller versioning:** every controller declares its version explicitly (`v1`, `v2`).
+- **Additive change** (new endpoint, new optional field): stays in the current version.
+- **Breaking change** (removal, rename, type change): create a new version; the old version stays untouched.
+- **Clients:** tests, SDKs, and docs all reference the versioned base URL — no unversioned routes.
+- **Deprecation:** announce → monitor traffic → remove only at zero usage; "we told everyone" is not zero-traffic.
 
 **Severity floor if violated:** P1 — unversioned breaking changes compound into routing-layer accretion that nobody dares delete. P0 if the API is consumed by mobile or third-party clients (app-store-delay = deploy-and-pray surface). May step down by one tier for internal-only APIs with a single tightly-coupled client.

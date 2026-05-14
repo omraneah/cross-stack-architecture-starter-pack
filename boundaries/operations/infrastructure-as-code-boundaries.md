@@ -42,12 +42,12 @@
 
 ## Minimum viable shape
 
-```
-Crown jewels → manual create → IaC import → prevent_destroy + ignore_changes
-Everything else → full IaC, deletion protection on stateful resources
-Tenant-scoped → IaC + isolated state per tenant/pool
-Secrets → cloud secret service; declared in IaC, valued out-of-band
-CI → format check → init → validate → security scan → plan → human review → apply
-```
+Four rules per resource class, one inner pipeline for CI:
+
+- **Crown jewels** (primary database, identity service): manual create, IaC import, `prevent_destroy` + `ignore_changes`.
+- **Everything else:** full IaC; deletion protection enabled on stateful resources.
+- **Tenant-scoped resources:** IaC-managed with isolated state per tenant or pool; no shared state across tenants.
+- **Secrets:** cloud secret service; declared in IaC, values set out-of-band.
+- **CI pipeline:** `format check → init → validate → security scan → plan → human review → apply` — sequence honest here because it IS an actual pipeline.
 
 **Severity floor if violated:** P0 for a missing `prevent_destroy` on a crown-jewel resource (primary database, identity service) — one bad plan can be the company-ending event. P1 for standard infrastructure outside IaC ownership. May step down by one tier in pre-revenue prototypes before the first paying customer.

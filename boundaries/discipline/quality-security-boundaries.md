@@ -42,12 +42,12 @@
 
 ## Minimum viable shape
 
-```
-Pre-commit hook ↔ CI workflow → same categories, same severity rules
-High / critical security findings → merge blocker, no override
-Suppressions → inline justification + tracked remediation date
-Tests, lint, format, type-check → run on every PR
-CI decision → final; no manual override path
-```
+Five independent rules over the quality and security surface:
+
+- **Pre-commit ↔ CI alignment:** same categories of checks, same severity rules.
+- **High / critical security findings:** merge blocker; no override path.
+- **Suppressions:** inline justification + a tracked remediation date; open-ended ignores forbidden.
+- **PR-time checks:** tests, lint, format, type-check run on every PR.
+- **CI decision:** final; no manual override.
 
 **Severity floor if violated:** P1 — CI gate drift is invisible until a high-severity advisory ships to production. P0 if `continue-on-error` or `soft_fail` is set on a security check without a tracked deadline. May step down by one tier in pre-revenue internal tools.

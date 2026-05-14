@@ -45,10 +45,10 @@
 
 ## Minimum viable shape
 
-```
-Humans → SSO + MFA → group → role → assumed at session start
-Workloads → instance profile / service identity → short-lived credentials
-CI pipelines → OIDC trust → assume role for the job
-Private resources → session service or scoped allowlist; no long-lived SSH
-Secrets → stored in the cloud's secret service; never crossing the cloud boundary
-```
+Five independent rules, one per access surface:
+
+- **Humans:** SSO + MFA, mapped through groups to roles, assumed at session start.
+- **Workloads:** instance profile or service identity; short-lived credentials only.
+- **CI pipelines:** OIDC trust; the pipeline assumes a role per job, credentials expire with the job.
+- **Private resources:** session service or scoped allowlist; no long-lived SSH keys for engineers.
+- **Secrets:** stored in the cloud's secret service; values never cross the cloud boundary outward.

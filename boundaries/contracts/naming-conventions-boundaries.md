@@ -41,12 +41,12 @@
 
 ## Minimum viable shape
 
-```
-Application layer → one convention consistently
-API boundary → same as application; no transformation
-Persistence layer → one convention; mapping in entity / repository only
-File naming → language / framework convention
-Enforcement → linter or formatter fails CI on violation
-```
+Five independent rules, one per layer:
+
+- **Application layer:** one convention (`camelCase` or `snake_case`) used consistently.
+- **API boundary:** same convention as the application; no transformation interceptors.
+- **Persistence layer:** one convention; mapping to the application convention lives in the entity or repository, not scattered.
+- **File naming:** follow the language / framework convention; don't fight the ecosystem.
+- **Enforcement:** linter or formatter fails CI on violation; humans don't enforce naming.
 
 **Severity floor if violated:** P2 — discipline drift, mostly cosmetic at small scale. Steps up to P1 in dense codebases where inconsistency costs mental translation cycles on every change, and to P0 if a transformation interceptor at the API boundary is masking a breaking-change to mobile clients.

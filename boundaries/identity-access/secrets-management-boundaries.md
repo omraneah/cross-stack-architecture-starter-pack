@@ -45,13 +45,13 @@
 
 ## Minimum viable shape
 
-```
-Storage → managed secret service; per-environment isolation
-Runtime → workload reads via cloud identity (instance profile / service account)
-Build → no secrets in image layers, CI logs, or artifact stores
-Local development → developers read via SSO + short-lived credentials
-Rotation → automatic where supported; scheduled + tracked otherwise
-Repository history → scanned for committed secrets; any finding is a P0 incident
-```
+Six independent rules, one per surface secrets touch:
+
+- **Storage:** managed secret service, per-environment isolation.
+- **Runtime:** workloads read via cloud identity (instance profile, service account, workload-identity federation).
+- **Build:** no secrets in image layers, CI logs, or artifact stores.
+- **Local development:** developers fetch via SSO + short-lived credentials; no shared `.env` files.
+- **Rotation:** automatic where the platform supports it; scheduled and tracked otherwise.
+- **Repository history:** scanned for committed secrets; any finding is a P0 incident.
 
 **Severity floor if violated:** P0 if a real secret value is committed (current or in history) — treat as an incident, not a finding. P0 if a long-lived cloud credential is in CI when the platform supports OIDC. P1 if no rotation discipline. P2 if local-development secret distribution is via shared files.

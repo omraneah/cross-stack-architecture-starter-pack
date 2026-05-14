@@ -48,13 +48,13 @@
 
 ## Minimum viable shape
 
-```
-Day 1 → centralized logger + centralized error module + structured log format
-Every error → typed, extends a base; never bare `throw new Error('string')`
-Every log → from the centralized logger, structured, with correlation context
-Production logs → shipped to a queryable system; operator can search
-Privileged actions → separate append-only audit trail, not in the log stream
-Audit depth → scales with buyer context (enterprise/regulated = day 1)
-```
+Six independent rules over the logging and error surface:
+
+- **Day 1:** centralized logger + centralized error module + structured log format.
+- **Every error:** typed, extends a base class; never bare `throw new Error('string')`.
+- **Every log line:** comes from the centralized logger, structured, with correlation context.
+- **Production logs:** shipped to a queryable system; the operator can search.
+- **Privileged actions:** separate append-only audit trail, not in the log stream.
+- **Audit depth:** scales with buyer context — enterprise / regulated = day 1, consumer can defer.
 
 **Severity floor if violated:** P0 if privileged actions lack audit trail in a B2B/regulated context. P1 if a centralized error module is absent (every team rebuilds the same pattern poorly). P2 if structured logging is absent but logs ship somewhere queryable.
